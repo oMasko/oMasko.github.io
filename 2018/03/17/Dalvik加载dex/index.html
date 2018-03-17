@@ -79,13 +79,13 @@
 
 
 
-<meta name="description" content="0x00 前言 早期的一种Android加固手段是通过动态地加载dex文件来达到保护目的，当然这种办法早就已经过时，那么要了解这种加固手段就必须了解Android的动态加载机制  0x01 DexClassLoader和PathClassLoaderAndroid中有许多类加载器，当然本文讨论范围主要是DexClassLoader和PathClassLoader这两个，这两个类都继承自BaseDe">
+<meta name="description" content="0x00 前言 早期的一种Android加固手段是通过动态地加载dex文件来达到保护目的，当然这种办法早就已经过时，那么要了解这种加固手段就必须了解Android的动态加载机制">
 <meta name="keywords" content="Android">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dalvik加载dex">
 <meta property="og:url" content="http://yoursite.com/2018/03/17/Dalvik加载dex/index.html">
 <meta property="og:site_name" content="Mask&#39;s Blog">
-<meta property="og:description" content="0x00 前言 早期的一种Android加固手段是通过动态地加载dex文件来达到保护目的，当然这种办法早就已经过时，那么要了解这种加固手段就必须了解Android的动态加载机制  0x01 DexClassLoader和PathClassLoaderAndroid中有许多类加载器，当然本文讨论范围主要是DexClassLoader和PathClassLoader这两个，这两个类都继承自BaseDe">
+<meta property="og:description" content="0x00 前言 早期的一种Android加固手段是通过动态地加载dex文件来达到保护目的，当然这种办法早就已经过时，那么要了解这种加固手段就必须了解Android的动态加载机制">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/03/17/Dalvik加载dex/0.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/17/Dalvik加载dex/1.png">
@@ -95,10 +95,10 @@
 <meta property="og:image" content="http://yoursite.com/2018/03/17/Dalvik加载dex/5.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/17/Dalvik加载dex/6.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/17/Dalvik加载dex/7.png">
-<meta property="og:updated_time" content="2018-03-17T13:28:04.809Z">
+<meta property="og:updated_time" content="2018-03-17T13:38:41.100Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Dalvik加载dex">
-<meta name="twitter:description" content="0x00 前言 早期的一种Android加固手段是通过动态地加载dex文件来达到保护目的，当然这种办法早就已经过时，那么要了解这种加固手段就必须了解Android的动态加载机制  0x01 DexClassLoader和PathClassLoaderAndroid中有许多类加载器，当然本文讨论范围主要是DexClassLoader和PathClassLoader这两个，这两个类都继承自BaseDe">
+<meta name="twitter:description" content="0x00 前言 早期的一种Android加固手段是通过动态地加载dex文件来达到保护目的，当然这种办法早就已经过时，那么要了解这种加固手段就必须了解Android的动态加载机制">
 <meta name="twitter:image" content="http://yoursite.com/2018/03/17/Dalvik加载dex/0.png">
 
 
@@ -346,6 +346,7 @@
         <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><blockquote>
 <p>早期的一种Android加固手段是通过动态地加载dex文件来达到保护目的，当然这种办法早就已经过时，那么要了解这种加固手段就必须了解Android的动态加载机制</p>
 </blockquote>
+<a id="more"></a>
 <h2 id="0x01-DexClassLoader和PathClassLoader"><a href="#0x01-DexClassLoader和PathClassLoader" class="headerlink" title="0x01 DexClassLoader和PathClassLoader"></a>0x01 DexClassLoader和PathClassLoader</h2><p>Android中有许多类加载器，当然本文讨论范围主要是<code>DexClassLoader</code>和<code>PathClassLoader</code>这两个，这两个类都继承自<code>BaseDexCloader</code>这个父类，区别在于PathClassLoader这个类默认的优化路径参数为null，所以只能是内部存储路径，而DexClassLoader则可以选择内部存储路径或者外部存储路径</p>
 <p>PathClassLoader:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public class PathClassLoader extends BaseDexClassLoader &#123;</span><br><span class="line">	public PathClassLoader(String dexPath, ClassLoader parent) &#123;</span><br><span class="line">		super(dexPath, null, null, parent);</span><br><span class="line">	&#125;</span><br><span class="line">	public PathClassLoader(String dexPath, String libraryPath,</span><br><span class="line">ClassLoader parent) &#123;</span><br><span class="line">		super(dexPath, null, libraryPath, parent);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
