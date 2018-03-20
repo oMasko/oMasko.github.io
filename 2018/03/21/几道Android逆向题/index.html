@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="CTF,Android," />
 
 
 
@@ -79,14 +79,27 @@
 
 
 
+<meta name="description" content="2017 湖湘杯–re2.apk直接反编译一下。。。">
+<meta name="keywords" content="CTF,Android">
 <meta property="og:type" content="article">
-<meta property="og:title" content="GOT&amp;PLT">
-<meta property="og:url" content="http://yoursite.com/2018/03/18/GOT-PLT/index.html">
+<meta property="og:title" content="几道Android逆向题(持续更新...)">
+<meta property="og:url" content="http://yoursite.com/2018/03/21/几道Android逆向题/index.html">
 <meta property="og:site_name" content="Mask&#39;s Blog">
+<meta property="og:description" content="2017 湖湘杯–re2.apk直接反编译一下。。。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-17T17:10:53.175Z">
+<meta property="og:image" content="http://yoursite.com/2018/03/21/几道Android逆向题/0.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/21/几道Android逆向题/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/21/几道Android逆向题/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/21/几道Android逆向题/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/21/几道Android逆向题/5.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/21/几道Android逆向题/6.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/21/几道Android逆向题/7.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/21/几道Android逆向题/8.png">
+<meta property="og:updated_time" content="2018-03-20T17:43:27.599Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="GOT&amp;PLT">
+<meta name="twitter:title" content="几道Android逆向题(持续更新...)">
+<meta name="twitter:description" content="2017 湖湘杯–re2.apk直接反编译一下。。。">
+<meta name="twitter:image" content="http://yoursite.com/2018/03/21/几道Android逆向题/0.png">
 
 
 
@@ -116,13 +129,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/03/18/GOT-PLT/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/03/21/几道Android逆向题/"/>
 
 
 
 
 
-  <title>GOT&PLT | Mask's Blog</title>
+  <title>几道Android逆向题(持续更新...) | Mask's Blog</title>
   
 
 
@@ -249,7 +262,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/18/GOT-PLT/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/21/几道Android逆向题/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Mask">
@@ -266,7 +279,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">GOT&PLT</h1>
+          <h1 class="post-title" itemprop="name headline">几道Android逆向题(持续更新...)</h1>
         
 
         <div class="post-meta">
@@ -278,8 +291,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-18T01:10:53+08:00">
-                2018-03-18
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-21T01:33:38+08:00">
+                2018-03-21
               </time>
             
 
@@ -316,7 +329,29 @@
       
 
       
-        
+        <h2 id="2017-湖湘杯–re2-apk"><a href="#2017-湖湘杯–re2-apk" class="headerlink" title="2017 湖湘杯–re2.apk"></a>2017 湖湘杯–re2.apk</h2><p>直接反编译一下。。。</p>
+<img src="/2018/03/21/几道Android逆向题/0.png">
+<a id="more"></a>
+<h2 id="2017-DDCTF-–-Android-easy"><a href="#2017-DDCTF-–-Android-easy" class="headerlink" title="2017 DDCTF – Android_easy"></a>2017 DDCTF – Android_easy</h2><p>题目很简单，这里是判定条件，相等即可</p>
+<img src="/2018/03/21/几道Android逆向题/2.png">
+<p>代码跑一下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">public class flag &#123;</span><br><span class="line">    static byte[] p = new byte[]&#123;-40, -62, 107, 66, -126, 103, -56, 77, 122, -107, -24, -127, 72, -63, -98, 64, -24, -5, -49, -26, 79, -70, -26, -81, 120, 25, 111, -100, -23, -9, 122, -35, 66, -50, -116, 3, -72, 102, -45, -85, 0, 126, -34, 62, 83, -34, 48, -111, 61, -9, -51, 114, 20, 81, -126, -18, 27, -115, -76, -116, -48, -118, -10, -102, -106, 113, -104, 98, -109, 74, 48, 47, -100, -88, 121, 22, -63, -32, -20, -41, -27, -20, -118, 100, -76, 70, -49, -39, -27, -106, -13, -108, 115, -87, -1, -22, -53, 21, -100, 124, -95, -40, 62, -69, 29, 56, -53, 85, -48, 25, 37, -78, 11, -110, -24, -120, -82, 6, -94, -101&#125;;</span><br><span class="line">    static byte[] q = new byte[]&#123;-57, -90, 53, -71, -117, 98, 62, 98, 101, -96, 36, 110, 77, -83, -121, 2, -48, 94, -106, -56, -49, -80, -1, 83, 75, 66, -44, 74, 2, -36, -42, -103, 6, -115, -40, 69, -107, 3, -73, -101, 99, 70, -21, 6, 106, -18, 86, -87, 10, -61, -8, 20, 44, 48, -77, -36, 44, -17, -48, -66, -77, -78, -60, -93, -94, 65, -83, 86, -14, 10, 84, 70, -8, -63, 26, 126, -76, -104, -123, -71, -126, -62, -23, 11, -39, 70, 14, 59, -101, -39, -124, 91, -109, 102, -49, 21, 105, 0, 37, -128, -57, 117, 110, -115, -86, 56, 25, -46, -55, 7, -125, 109, 76, 104, -15, 82, -53, 18, -28, -24&#125;;</span><br><span class="line"></span><br><span class="line">    private static String i() &#123;</span><br><span class="line">        int v1 = 0;</span><br><span class="line">        byte[] v2 = new byte[p.length];</span><br><span class="line">        int v0;</span><br><span class="line">        for(v0 = 0; v0 &lt; v2.length; ++v0) &#123;</span><br><span class="line">            v2[v0] = ((byte)(p[v0] ^ q[v0]));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        int v3 = v2[0];</span><br><span class="line">        for(v0 = 0; v2[v3 + v0] != 0; ++v0) &#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        byte[] v4 = new byte[v0];</span><br><span class="line">        while(v1 &lt; v0) &#123;</span><br><span class="line">            v4[v1] = v2[v3 + v1];</span><br><span class="line">            ++v1;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return new String(v4);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args)</span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(i());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="/2018/03/21/几道Android逆向题/3.png">
+<h2 id="2017-DDCTF-–-Android-Normal"><a href="#2017-DDCTF-–-Android-Normal" class="headerlink" title="2017 DDCTF – Android Normal"></a>2017 DDCTF – Android Normal</h2><p>关键处：</p>
+<img src="/2018/03/21/几道Android逆向题/4.png">
+<p>直接分析so文件：</p>
+<p>这里有好几处地方可以下断点</p>
+<p>第一处，在生成完key然后拷贝的时候下断：</p>
+<img src="/2018/03/21/几道Android逆向题/5.png">
+<p>断下来后运行，然后随意输入字符串，会断在端点处，然后f8一下，查看返回值(R0中的值)</p>
+<img src="/2018/03/21/几道Android逆向题/6.png">
+<p>第二个断点可以下在调用NewStringUTF处，此处会将key转换为jni下的字符串</p>
+<img src="/2018/03/21/几道Android逆向题/7.png">
+<p>断下来后运行，查看R5寄存器即可：</p>
+<img src="/2018/03/21/几道Android逆向题/8.png">
+<p>最后其实还有一种办法就是反编译后修改smali代码，利用log插桩输出key</p>
+<p>emmmmm，后来看了下，硬刚算法好像也可行</p>
+
       
     </div>
     
@@ -331,6 +366,14 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/CTF/" rel="tag"># CTF</a>
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
 
       
       
@@ -340,8 +383,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/03/17/ROP-Emporium/" rel="next" title="ROP_Emporium(更新中...)">
-                <i class="fa fa-chevron-left"></i> ROP_Emporium(更新中...)
+              <a href="/2018/03/19/2017湘湖杯pwn/" rel="next" title="2017湖湘杯pwn">
+                <i class="fa fa-chevron-left"></i> 2017湖湘杯pwn
               </a>
             
           </div>
@@ -349,10 +392,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/03/18/编译glibc/" rel="prev" title="编译glibc">
-                编译glibc <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -404,8 +443,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -460,6 +508,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#2017-湖湘杯–re2-apk"><span class="nav-number">1.</span> <span class="nav-text">2017 湖湘杯–re2.apk</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2017-DDCTF-–-Android-easy"><span class="nav-number">2.</span> <span class="nav-text">2017 DDCTF – Android_easy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2017-DDCTF-–-Android-Normal"><span class="nav-number">3.</span> <span class="nav-text">2017 DDCTF – Android Normal</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
