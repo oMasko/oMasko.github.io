@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Android," />
 
 
 
@@ -79,14 +79,30 @@
 
 
 
+<meta name="description" content="之前学习了ELF文件格式，然后就想分析分析Android是如何对so文件进行加载的，有助于理解linker机制以及so的加固">
+<meta name="keywords" content="Android">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android中so加载">
 <meta property="og:url" content="http://yoursite.com/2018/03/18/Android中so加载/index.html">
 <meta property="og:site_name" content="Mask&#39;s Blog">
+<meta property="og:description" content="之前学习了ELF文件格式，然后就想分析分析Android是如何对so文件进行加载的，有助于理解linker机制以及so的加固">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-17T17:12:51.141Z">
+<meta property="og:image" content="http://yoursite.com/2018/03/18/Android中so加载/0.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/18/Android中so加载/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/18/Android中so加载/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/18/Android中so加载/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/18/Android中so加载/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/18/Android中so加载/5.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/18/Android中so加载/6.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/18/Android中so加载/7.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/18/Android中so加载/8.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/18/Android中so加载/9.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/18/Android中so加载/10.png">
+<meta property="og:updated_time" content="2018-04-03T09:57:42.087Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android中so加载">
+<meta name="twitter:description" content="之前学习了ELF文件格式，然后就想分析分析Android是如何对so文件进行加载的，有助于理解linker机制以及so的加固">
+<meta name="twitter:image" content="http://yoursite.com/2018/03/18/Android中so加载/0.png">
 
 
 
@@ -316,7 +332,73 @@
       
 
       
-        
+        <p>之前学习了ELF文件格式，然后就想分析分析Android是如何对so文件进行加载的，有助于理解linker机制以及so的加固</p>
+<a id="more"></a>
+<h2 id="Java层调用"><a href="#Java层调用" class="headerlink" title="Java层调用"></a>Java层调用</h2><p>调用System.loadLibrary对so文件进行加载：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">     * Loads and links the library with the specified name. The mapping of the</span><br><span class="line">     * specified library name to the full path for loading the library is</span><br><span class="line">     * implementation-dependent.</span><br><span class="line">     *</span><br><span class="line">     * @param libName</span><br><span class="line">     *            the name of the library to load.</span><br><span class="line">     * @throws UnsatisfiedLinkError</span><br><span class="line">     *             if the library could not be loaded.</span><br><span class="line">     */</span><br><span class="line">    public static void loadLibrary(String libName) &#123;</span><br><span class="line">        Runtime.getRuntime().loadLibrary(libName, VMStack.getCallingClassLoader());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>在这个函数的上面还有一个load函数也是用来加载so文件的，区别在于load需要传入一个绝对路径，所以它可以从外部进行加载</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">     * Loads and links the dynamic library that is identified through the</span><br><span class="line">     * specified path. This method is similar to &#123;@link #loadLibrary(String)&#125;,</span><br><span class="line">     * but it accepts a full path specification whereas &#123;@code loadLibrary&#125; just</span><br><span class="line">     * accepts the name of the library to load.</span><br><span class="line">     *</span><br><span class="line">     * @param pathName</span><br><span class="line">     *            the path of the file to be loaded.</span><br><span class="line">     */</span><br><span class="line">    public static void load(String pathName) &#123;</span><br><span class="line">        Runtime.getRuntime().load(pathName, VMStack.getCallingClassLoader());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>先分析loadLibrary，进行跟进</p>
+<img src="/2018/03/18/Android中so加载/0.png">
+<p>这里跟进findLibrary看看是怎样找到so路径的</p>
+<img src="/2018/03/18/Android中so加载/2.png">
+<p>居然是返回空？？？是这样的，在Android里ClassLoader只是一个抽象类，部分的实现机制在子类BaseDexClassLoader中，那么跳过去看看</p>
+<img src="/2018/03/18/Android中so加载/3.png">
+<p>此处呢，调用了DexPathList类的findlibrary方法，跟进查看</p>
+<pre><code> /**
+ * Finds the named native code library on any of the library
+ * directories pointed at by this instance. This will find the
+ * one in the earliest listed directory, ignoring any that are not
+ * readable regular files.
+ *
+ * @return the complete path to the library or {@code null} if no
+ * library was found
+ */
+public String findLibrary(String libraryName) {
+    String fileName = System.mapLibraryName(libraryName);
+    for (File directory : nativeLibraryDirectories) {
+        String path = new File(directory, fileName).getPath();
+        if (IoUtils.canOpenReadOnly(path)) {
+            return path;
+        }
+    }
+    return null;
+}
+</code></pre><p>呐，这里其实就是根据传进来的libName，返回内部SO库文件的完整路径filename。再回到Runtime类，获取filename后调用了doLoad方法</p>
+<p>再来看看System.load方法</p>
+<p>跟进Runtime类</p>
+<p>呐，这里就比较直接了，直接调用了doLoad方法</p>
+<img src="/2018/03/18/Android中so加载/4.png">，可见loadLibrary和load的后面的调用是一样的，前者虽然传入的只是库文件名字，但是后面调用了findLibrary对库文件路径进行了获取，load则直接传入库文件路径即可<br><br><br><br>那么，继续跟进doLoad，看看是如何加载的<br><br><img src="/2018/03/18/Android中so加载/1.png">
+<p>这里可以发现doLoad调用了native函数nativeLoad加载so文件</p>
+<h2 id="Native层调用"><a href="#Native层调用" class="headerlink" title="Native层调用"></a>Native层调用</h2><p>跟进java_lang_runtime.cpp</p>
+<img src="/2018/03/18/Android中so加载/5.png">
+<p>那么跟进dvmLoadNativeCode函数查看</p>
+<img src="/2018/03/18/Android中so加载/6.png">
+<p>findSharedLibEntry会返回一个SharedLib对象pEntry，此处他会进行一个判断，pEntry对象里保留了so文件的加载信息，如果so以及加载过，上次用来加载的类加载器和当前使用的不一致，或者上次加载失败，都会返回false</p>
+<p>接下来会调用dlopen来在当前进程中加载so文件，并且返回一个handle变量</p>
+<img src="/2018/03/18/Android中so加载/7.png">
+<p>跟进dlopen函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">void* dlopen(const char* filename, int flags) &#123;</span><br><span class="line">  ScopedPthreadMutexLocker locker(&amp;gDlMutex);</span><br><span class="line">  soinfo* result = do_dlopen(filename, flags);</span><br><span class="line">  if (result == NULL) &#123;</span><br><span class="line"></span><br><span class="line">__bionic_format_dlerror(&quot;dlopen failed&quot;, linker_get_error_buffer());</span><br><span class="line">return NULL;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>继续跟进do_dlopen</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">823soinfo* do_dlopen(const char* name, int flags) &#123;</span><br><span class="line">824  if ((flags &amp; ~(RTLD_NOW|RTLD_LAZY|RTLD_LOCAL|RTLD_GLOBAL)) != 0) &#123;</span><br><span class="line">825    DL_ERR(&quot;invalid flags to dlopen: %x&quot;, flags);</span><br><span class="line">826    return NULL;</span><br><span class="line">827  &#125;</span><br><span class="line">828  set_soinfo_pool_protection(PROT_READ | PROT_WRITE);</span><br><span class="line">829  soinfo* si = find_library(name);</span><br><span class="line">830  if (si != NULL) &#123;</span><br><span class="line">831    si-&gt;CallConstructors();</span><br><span class="line">832  &#125;</span><br><span class="line">833  set_soinfo_pool_protection(PROT_READ);</span><br><span class="line">834  return si;</span><br><span class="line">835&#125;</span><br></pre></td></tr></table></figure>
+<p>find_library会判断so是否加载过，跟进看一下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">static soinfo* find_library(const char* name) &#123;</span><br><span class="line">786  soinfo* si = find_library_internal(name); //判断是否加载过</span><br><span class="line">787  if (si != NULL) &#123;</span><br><span class="line">788    si-&gt;ref_count++;</span><br><span class="line">789  &#125;</span><br><span class="line">790  return si;</span><br><span class="line">791&#125;</span><br></pre></td></tr></table></figure>
+<img src="/2018/03/18/Android中so加载/8.png">
+<p>跟进load_library</p>
+<img src="/2018/03/18/Android中so加载/9.png">
+<p>看一下load函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">bool ElfReader::Load() &#123;</span><br><span class="line">  return ReadElfHeader() &amp;&amp;</span><br><span class="line"></span><br><span class="line">     VerifyElfHeader() &amp;&amp;</span><br><span class="line">     ReadProgramHeader() &amp;&amp;</span><br><span class="line">     ReserveAddressSpace() &amp;&amp;</span><br><span class="line">     LoadSegments() &amp;&amp;</span><br><span class="line">     FindPhdr();</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>一些校验啊，段映射之类的操作，这里就不跟进了</p>
+<p>我们回到前面的do_dlopen，加载完后会调用一个CallConstructors()函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">void soinfo::CallConstructors() &#123;</span><br><span class="line">  if (constructors_called) &#123;</span><br><span class="line">    return;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // We set constructors_called before actually calling the constructors, otherwise it doesn&apos;t</span><br><span class="line">  // protect against recursive constructor calls. One simple example of constructor recursion</span><br><span class="line">  // is the libc debug malloc, which is implemented in libc_malloc_debug_leak.so:</span><br><span class="line">  // 1. The program depends on libc, so libc&apos;s constructor is called here.</span><br><span class="line">  // 2. The libc constructor calls dlopen() to load libc_malloc_debug_leak.so.</span><br><span class="line">  // 3. dlopen() calls the constructors on the newly created</span><br><span class="line">  //    soinfo for libc_malloc_debug_leak.so.</span><br><span class="line">  // 4. The debug .so depends on libc, so CallConstructors is</span><br><span class="line">  //    called again with the libc soinfo. If it doesn&apos;t trigger the early-</span><br><span class="line">  //    out above, the libc constructor will be called again (recursively!).</span><br><span class="line">  constructors_called = true;</span><br><span class="line"></span><br><span class="line">  if ((flags &amp; FLAG_EXE) == 0 &amp;&amp; preinit_array != NULL) &#123;</span><br><span class="line">    // The GNU dynamic linker silently ignores these, but we warn the developer.</span><br><span class="line">    PRINT(&quot;\&quot;%s\&quot;: ignoring %d-entry DT_PREINIT_ARRAY in shared library!&quot;,</span><br><span class="line">          name, preinit_array_count);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  if (dynamic != NULL) &#123;</span><br><span class="line">    for (Elf32_Dyn* d = dynamic; d-&gt;d_tag != DT_NULL; ++d) &#123;</span><br><span class="line">      if (d-&gt;d_tag == DT_NEEDED) &#123;</span><br><span class="line">        const char* library_name = strtab + d-&gt;d_un.d_val;</span><br><span class="line">        TRACE(&quot;\&quot;%s\&quot;: calling constructors in DT_NEEDED \&quot;%s\&quot;&quot;, name, library_name);</span><br><span class="line">        find_loaded_library(library_name)-&gt;CallConstructors();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  TRACE(&quot;\&quot;%s\&quot;: calling constructors&quot;, name);</span><br><span class="line"></span><br><span class="line">  // DT_INIT should be called before DT_INIT_ARRAY if both are present.</span><br><span class="line">  CallFunction(&quot;DT_INIT&quot;, init_func);</span><br><span class="line">  CallArray(&quot;DT_INIT_ARRAY&quot;, init_array, init_array_count, false);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>来看下注释，大致的意思就是会在这调用一些so的初始化函数，比如在这会调用init_func,init_array,init_array_count中的函数</p>
+<p>（那么这里我们如果动态调试so时，我们就可以尝试将断点下在CallConstructors,来跟踪一些初始化函数，在脱so壳时很关建）</p>
+<p>再回到这来</p>
+<img src="/2018/03/18/Android中so加载/10.png">
+<p>此处调用了一个关键的JNI_Onload函数，这个函数可以动态注册一些native函数之类的操作</p>
+<p>并且跟踪源码后发现.init段的初始化函数是早于JNI_Onload函数执行的</p>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>加载过程大致如此，中间还有一些so怎样链接以及链接后填充soinfo结构体的细节没有去仔细分析，这些对于自己实现一套Linker机制还是很有帮助的</p>
+
       
     </div>
     
@@ -330,6 +412,12 @@
     
 
     <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
       
 
       
@@ -404,8 +492,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -460,6 +557,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java层调用"><span class="nav-number">1.</span> <span class="nav-text">Java层调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Native层调用"><span class="nav-number">2.</span> <span class="nav-text">Native层调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后"><span class="nav-number">3.</span> <span class="nav-text">最后</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
