@@ -102,7 +102,7 @@
 <meta property="og:image" content="http://yoursite.com/2018/03/18/GOT-PLT/12.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/18/GOT-PLT/13.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/18/GOT-PLT/end.png">
-<meta property="og:updated_time" content="2018-04-03T19:03:05.403Z">
+<meta property="og:updated_time" content="2018-04-11T09:37:37.118Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GOT&amp;PLT 延迟绑定">
 <meta name="twitter:description" content="挺多地方都会应用这个知识点的，像PWN里的GOT劫持啊，ret2dl_resolve啊，Hook里的GOT Hook啊之类的">
@@ -386,7 +386,7 @@ libc.so.6 =&gt; /home/ubuntu/debugGlibc/lib/libc.so.6 (0x00007f95a4abd000)
 <img src="/2018/03/18/GOT-PLT/12.png">
 <p>扫一下源码，最后返回值为这个</p>
 <img src="/2018/03/18/GOT-PLT/13.png">
-<p>可以发现和之前手动解析的计算方式一致,然后再将解析后的符号地址进行回填</p>
+<p>可以发现和之前手动解析的计算方式一致,然后根据解析后的符号获取对应的函数，再将函数地址进行回填，下次再调用时，就直接跳转到函数处执行</p>
 <p>这里有张图可以帮助理解整个过程</p>
 <img src="/2018/03/18/GOT-PLT/end.png">
 
