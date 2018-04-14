@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,ELF," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="0x00 前言学习过ELF文件格式之后，为了加深理解就想着自己去解析一遍，文件结构网上有大量的资料，就不多说啦0.0">
+<meta name="keywords" content="Linux,ELF">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简单的ELF解析器">
+<meta property="og:url" content="http://yoursite.com/2018/03/19/简单的ELF解析器/index.html">
+<meta property="og:site_name" content="Mask&#39;s Blog">
+<meta property="og:description" content="0x00 前言学习过ELF文件格式之后，为了加深理解就想着自己去解析一遍，文件结构网上有大量的资料，就不多说啦0.0">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/03/19/简单的ELF解析器/0.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/19/简单的ELF解析器/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/19/简单的ELF解析器/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/19/简单的ELF解析器/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/19/简单的ELF解析器/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/19/简单的ELF解析器/5.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/19/简单的ELF解析器/7.png">
+<meta property="og:updated_time" content="2018-04-14T16:54:46.930Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="简单的ELF解析器">
+<meta name="twitter:description" content="0x00 前言学习过ELF文件格式之后，为了加深理解就想着自己去解析一遍，文件结构网上有大量的资料，就不多说啦0.0">
+<meta name="twitter:image" content="http://yoursite.com/2018/03/19/简单的ELF解析器/0.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/19/简单的ELF解析器/"/>
+
+
+
+
+
+  <title>简单的ELF解析器 | Mask's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Mask's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/About/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/19/简单的ELF解析器/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mask">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mask's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">简单的ELF解析器</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-19T00:00:52+08:00">
+                2018-03-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>学习过ELF文件格式之后，为了加深理解就想着自己去解析一遍，文件结构网上有大量的资料，就不多说啦0.0</p>
+<a id="more"></a>
+<h2 id="0x01手动解析"><a href="#0x01手动解析" class="headerlink" title="0x01手动解析"></a>0x01手动解析</h2><p>这里编译了带有调试信息的glibc，对于版本的glibc可以去这里下载应版本<a href="http://mirrors.ustc.edu.cn/gnu/libc/" target="_blank" rel="noopener">http://mirrors.ustc.edu.cn/gnu/libc/</a></p>
+<p>编译：</p>
+<p>64位：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd glibc &amp;&amp; mkdir build &amp;&amp; cd build</span><br><span class="line">CFLAGS=&quot;-g -g3 -ggdb -gdwarf-4 -Og&quot;</span><br><span class="line">CXXFLAGS=&quot;-g -g3 -ggdb -gdwarf-4 -Og&quot;</span><br><span class="line">../configure --prefix=/path/to/install</span><br></pre></td></tr></table></figure>
+<p>32位：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd glibc &amp;&amp; mkdir build32 &amp;&amp; cd build32</span><br><span class="line">CC=&quot;gcc -m32&quot; CXX=&quot;g++ -m32&quot; \</span><br><span class="line">CFLAGS=&quot;-g -g3 -ggdb -gdwarf-4 -Og&quot; \</span><br><span class="line">CXXFLAGS=&quot;-g -g3 -ggdb -gdwarf-4 -Og&quot; \</span><br><span class="line">../configure --prefix=/path/to/install --host=i686-linux-gnu</span><br></pre></td></tr></table></figure>
+<p>然后先编写一个简单的HelloWorld</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># include&lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line">int main()&#123;</span><br><span class="line"></span><br><span class="line">    printf(&quot;Hello world&quot;);</span><br><span class="line">    return 0;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后指定glibc版本编译，这里引用的是我编译好的glibc存放的目录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hello.o: hello.c</span><br><span class="line"></span><br><span class="line">    gcc hello.c -o hello -Wl,--dynamic-linker=/home/ubuntu/debugGlibc/lib/ld-2.23.so</span><br></pre></td></tr></table></figure>
+<p>然后再在命令行下指定下LD_LIBRARY_PATH路径（这只是临时的，退出这个shell即失效）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export LD_LIBRARY_PATH=/home/ubuntu/debugGlibc/lib</span><br></pre></td></tr></table></figure>
+<img src="/2018/03/19/简单的ELF解析器/0.png">
+<p>然后gdb开始调试运行，这里查看一下进程布局</p>
+<p><code>i proc mappings</code></p>
+<img src="/2018/03/19/简单的ELF解析器/1.png">
+<p>进程起始地址为0x400000</p>
+<p>那么来手动解析下elf header</p>
+<img src="/2018/03/19/简单的ELF解析器/2.png">
+<p>对比下readelf</p>
+<img src="/2018/03/19/简单的ELF解析器/3.png">
+<p>那么再来解析下section header啊</p>
+<img src="/2018/03/19/简单的ELF解析器/4.png">
+<p>嘛玩意儿？emmmm，别忘了section header并不会加载进内存（手动滑稽）</p>
+<p>那敢情好，解析下program header试试</p>
+<img src="/2018/03/19/简单的ELF解析器/5.png">
+<p>那么手动解析到此，别的字段可以自行试试</p>
+<h2 id="0x02-编写简易的ELF解析器"><a href="#0x02-编写简易的ELF解析器" class="headerlink" title="0x02 编写简易的ELF解析器"></a>0x02 编写简易的ELF解析器</h2><p>本来想用python或者java写的，但想想指针这个东西某些时候确实方便（手动滑稽）</p>
+<p>代码部分参考自<a href="https://github.com/finixbit/elf-parser" target="_blank" rel="noopener">https://github.com/finixbit/elf-parser</a></p>
+<p>自己用CMake重新编译了下，然后稍稍修改了一丢丢</p>
+<p>当然本身也就是学习为了熟悉下elf结构，所以自己添加了大量的注释说明</p>
+<p>这个简易的解析器只实现了解析section header table功能</p>
+<p>首先看头文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><span class="line">//</span><br><span class="line">// Created by Mask on 2018/3/14.</span><br><span class="line">//</span><br><span class="line"></span><br><span class="line">#ifndef ELF_PARSE_ELF_PARSE_H</span><br><span class="line">#define ELF_PARSE_ELF_PARSE_H</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#include &lt;cstdlib&gt;</span><br><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;elf.h&gt;</span><br><span class="line">#include &lt;vector&gt;</span><br><span class="line">#include &lt;sys/stat.h&gt;</span><br><span class="line">#include &lt;sys/fcntl.h&gt;</span><br><span class="line">#include &lt;sys/mman.h&gt;</span><br><span class="line"></span><br><span class="line">namespace elf_parser&#123;</span><br><span class="line">    typedef struct &#123;</span><br><span class="line">        int section_index = 0;</span><br><span class="line">        std::intptr_t section_offset,section_addr;</span><br><span class="line">        std::string section_name,section_type;</span><br><span class="line">        int section_size,section_ent_size,section_addr_align;</span><br><span class="line">    &#125; section_t;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    class Elf_parser &#123;</span><br><span class="line">    public:</span><br><span class="line">        Elf_parser(std::string &amp;program_path): m_program_path&#123;program_path&#125;&#123; //构造函数，将elf文件加载进内存</span><br><span class="line">            load_memory_map();</span><br><span class="line">        &#125;</span><br><span class="line">        std::vector&lt;section_t&gt; get_sections();</span><br><span class="line">        u_int8_t *get_memory_map();</span><br><span class="line"></span><br><span class="line">    private:</span><br><span class="line">        void load_memory_map();</span><br><span class="line">        std::string get_section_type(int tt);</span><br><span class="line">        std::string m_program_path; //elf文件路径</span><br><span class="line">        u_int8_t *m_mmap_program; //获取elf文件加载进内存的初始地址</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    void Elf_parser::load_memory_map() &#123;</span><br><span class="line">        int fd,i;</span><br><span class="line">        struct stat st;</span><br><span class="line"></span><br><span class="line">        if((fd = open(m_program_path.c_str(),O_RDONLY))&lt;0)&#123; //打开失败报错</span><br><span class="line">            perror(&quot;open&quot;);</span><br><span class="line">            exit(-1);</span><br><span class="line">        &#125;</span><br><span class="line">        if(fstat(fd,&amp;st)&lt;0)&#123;</span><br><span class="line">            perror(&quot;fstat&quot;);</span><br><span class="line">            exit(-1);</span><br><span class="line">        &#125;</span><br><span class="line">        m_mmap_program = static_cast&lt;u_int8_t *&gt;(mmap(NULL,st.st_size,PROT_READ,MAP_PRIVATE,fd,0));//映射进内存</span><br><span class="line">        if (m_mmap_program == MAP_FAILED)&#123;</span><br><span class="line">            perror(&quot;mmap&quot;);//映射失败</span><br><span class="line">            exit(-1);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        auto header = (Elf64_Ehdr*)m_mmap_program;</span><br><span class="line">        if (header-&gt;e_ident[EI_CLASS]!=ELFCLASS64)&#123; //判断是否为elf64格式</span><br><span class="line">            printf(&quot;Only 64-bit files supported\n&quot;);</span><br><span class="line">            exit(1);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    std::string Elf_parser::get_section_type(int tt) &#123;</span><br><span class="line">        if(tt &lt; 0)</span><br><span class="line">            return &quot;UNKNOWN&quot;;</span><br><span class="line"></span><br><span class="line">        switch(tt) &#123;</span><br><span class="line">            case 0: return &quot;SHT_NULL&quot;;      /* Section header table entry unused */</span><br><span class="line">            case 1: return &quot;SHT_PROGBITS&quot;;  /* Program data */</span><br><span class="line">            case 2: return &quot;SHT_SYMTAB&quot;;    /* Symbol table */</span><br><span class="line">            case 3: return &quot;SHT_STRTAB&quot;;    /* String table */</span><br><span class="line">            case 4: return &quot;SHT_RELA&quot;;      /* Relocation entries with addends */</span><br><span class="line">            case 5: return &quot;SHT_HASH&quot;;      /* Symbol hash table */</span><br><span class="line">            case 6: return &quot;SHT_DYNAMIC&quot;;   /* Dynamic linking information */</span><br><span class="line">            case 7: return &quot;SHT_NOTE&quot;;      /* Notes */</span><br><span class="line">            case 8: return &quot;SHT_NOBITS&quot;;    /* Program space with no data (bss) */</span><br><span class="line">            case 9: return &quot;SHT_REL&quot;;       /* Relocation entries, no addends */</span><br><span class="line">            case 11: return &quot;SHT_DYNSYM&quot;;   /* Dynamic linker symbol table */</span><br><span class="line">            default: return &quot;UNKNOWN&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">        return &quot;UNKNOWN&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    std::vector&lt;section_t&gt; Elf_parser::get_sections() &#123;</span><br><span class="line">        Elf64_Ehdr *ehdr = (Elf64_Ehdr*)m_mmap_program; //获取elf_header</span><br><span class="line">        Elf64_Shdr *shdr = (Elf64_Shdr*)(m_mmap_program+ehdr-&gt;e_shoff);//获取section header table</span><br><span class="line">        int shnum = ehdr-&gt;e_shnum;//section数</span><br><span class="line"></span><br><span class="line">        Elf64_Shdr *sh_strtab = &amp;shdr[ehdr-&gt;e_shstrndx]; //获取短表字符串表，这个表里有每个section的名称</span><br><span class="line">        const char *const sh_strtab_p = (char*)m_mmap_program+sh_strtab-&gt;sh_offset;</span><br><span class="line"></span><br><span class="line">        std::vector&lt;section_t&gt; sections;</span><br><span class="line">        for (int i = 0; i &lt; shnum; i++) &#123;</span><br><span class="line">            section_t section;</span><br><span class="line">            section.section_index = i;</span><br><span class="line">            section.section_name = std::string(sh_strtab_p+shdr[i].sh_name);</span><br><span class="line">            section.section_type = get_section_type(shdr[i].sh_type);</span><br><span class="line">            section.section_addr = shdr[i].sh_addr;</span><br><span class="line">            section.section_offset = shdr[i].sh_offset;</span><br><span class="line">            section.section_size = shdr[i].sh_size;</span><br><span class="line">            section.section_ent_size = shdr[i].sh_entsize;</span><br><span class="line">            section.section_addr_align = shdr[i].sh_addralign;</span><br><span class="line"></span><br><span class="line">            sections.push_back(section);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        return sections;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">#endif //ELF_PARSE_ELF_PARSE_H</span><br></pre></td></tr></table></figure>
+<p>再来看获取section的主控函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;cinttypes&gt;</span><br><span class="line"></span><br><span class="line">#include &quot;elf_parse.h&quot;</span><br><span class="line"></span><br><span class="line">void print_sections(std::vector&lt;elf_parser::section_t&gt; &amp;sections);</span><br><span class="line"></span><br><span class="line">int main(int argc,char* argv[]) &#123;</span><br><span class="line"></span><br><span class="line">    char usage_banner[] = &quot;usage:./section [&lt;excutable&gt;]\n&quot;;</span><br><span class="line">    if (argc&lt;2)&#123;</span><br><span class="line">        fprintf(stderr,usage_banner);</span><br><span class="line">        return -1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    std::string program((std::string)argv[1]);</span><br><span class="line">    elf_parser::Elf_parser elf_parser(program);</span><br><span class="line"></span><br><span class="line">    std::vector&lt;elf_parser::section_t&gt; secs = elf_parser.get_sections();</span><br><span class="line">    print_sections(secs);</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void print_sections(std::vector&lt;elf_parser::section_t&gt; &amp;sections) &#123;</span><br><span class="line">    printf(&quot;  [Nr] %-16s %-16s %-16s %s&quot;, &quot;Name&quot;, &quot;Type&quot;, &quot;Address&quot;, &quot;Offset&quot;);</span><br><span class="line">    printf(&quot;       %-16s %-16s %5s\n&quot;,</span><br><span class="line">           &quot;Size&quot;, &quot;EntSize&quot;, &quot;Align&quot;);</span><br><span class="line"></span><br><span class="line">    for (auto &amp;section : sections) &#123;</span><br><span class="line">        printf(&quot;  [%2d] %-16s %-16s %016&quot; PRIx64 &quot; %08&quot; PRIx64 &quot;&quot;,</span><br><span class="line">               section.section_index,</span><br><span class="line">               section.section_name.c_str(),</span><br><span class="line">               section.section_type.c_str(),</span><br><span class="line">               section.section_addr,</span><br><span class="line">               section.section_offset);</span><br><span class="line"></span><br><span class="line">        printf(&quot;       %016zx %016&quot; PRIx64 &quot; %5&quot; PRIu64 &quot;\n&quot;,</span><br><span class="line">               section.section_size,</span><br><span class="line">               section.section_ent_size,</span><br><span class="line">               section.section_addr_align);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>CMakelist.txt</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cmake_minimum_required(VERSION 3.9)</span><br><span class="line">project(Elf_parse)</span><br><span class="line"></span><br><span class="line">set(CMAKE_CXX_STANDARD 11)</span><br><span class="line"></span><br><span class="line">add_executable(Elf_parse sections.cpp elf_parse.h)</span><br></pre></td></tr></table></figure>
+<p>运行看看效果</p>
+<img src="/2018/03/19/简单的ELF解析器/7.png">
+<p>emmm还可以，其他字段的解析类似，只要对着elf的文件结构解析即可</p>
+<h2 id="0x03-一点小小的学习笔记"><a href="#0x03-一点小小的学习笔记" class="headerlink" title="0x03 一点小小的学习笔记"></a>0x03 一点小小的学习笔记</h2><p>有关mmap函数</p>
+<p><a href="https://blog.csdn.net/yangle4695/article/details/52139585" target="_blank" rel="noopener">https://blog.csdn.net/yangle4695/article/details/52139585</a></p>
+<p>C++ 11的一些新特性</p>
+<p><a href="http://blog.jobbole.com/44015/" target="_blank" rel="noopener">http://blog.jobbole.com/44015/</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/ELF/" rel="tag"># ELF</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/18/某群CTF/" rel="next" title="某群CTF">
+                <i class="fa fa-chevron-left"></i> 某群CTF
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/19/2017湘湖杯pwn/" rel="prev" title="2017湖湘杯pwn">
+                2017湖湘杯pwn <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Mask" />
+            
+              <p class="site-author-name" itemprop="name">Mask</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-前言"><span class="nav-number">1.</span> <span class="nav-text">0x00 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01手动解析"><span class="nav-number">2.</span> <span class="nav-text">0x01手动解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-编写简易的ELF解析器"><span class="nav-number">3.</span> <span class="nav-text">0x02 编写简易的ELF解析器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-一点小小的学习笔记"><span class="nav-number">4.</span> <span class="nav-text">0x03 一点小小的学习笔记</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mask</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
