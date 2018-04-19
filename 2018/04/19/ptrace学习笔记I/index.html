@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,Hook,ptrace," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="0x00 前言早就想深入学习下ptrace了，这玩意儿实用性太强，什么注入啊，hook什么的都能用到它，甚至你还能根据ptrace编写自己的调试工具，emmm我也想写一个，呐，这篇文章就是记录下自己学习的过程">
+<meta name="keywords" content="Linux,Hook,ptrace">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ptrace学习笔记I">
+<meta property="og:url" content="http://yoursite.com/2018/04/19/ptrace学习笔记I/index.html">
+<meta property="og:site_name" content="Mask&#39;s Blog">
+<meta property="og:description" content="0x00 前言早就想深入学习下ptrace了，这玩意儿实用性太强，什么注入啊，hook什么的都能用到它，甚至你还能根据ptrace编写自己的调试工具，emmm我也想写一个，呐，这篇文章就是记录下自己学习的过程">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/04/19/ptrace学习笔记I/0.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/19/ptrace学习笔记I/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/19/ptrace学习笔记I/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/04/19/ptrace学习笔记I/3.png">
+<meta property="og:updated_time" content="2018-04-19T16:28:17.320Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ptrace学习笔记I">
+<meta name="twitter:description" content="0x00 前言早就想深入学习下ptrace了，这玩意儿实用性太强，什么注入啊，hook什么的都能用到它，甚至你还能根据ptrace编写自己的调试工具，emmm我也想写一个，呐，这篇文章就是记录下自己学习的过程">
+<meta name="twitter:image" content="http://yoursite.com/2018/04/19/ptrace学习笔记I/0.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/19/ptrace学习笔记I/"/>
+
+
+
+
+
+  <title>ptrace学习笔记I | Mask's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Mask's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/About/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/19/ptrace学习笔记I/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mask">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mask's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ptrace学习笔记I</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-19T23:30:02+08:00">
+                2018-04-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>早就想深入学习下ptrace了，这玩意儿实用性太强，什么注入啊，hook什么的都能用到它，甚至你还能根据ptrace编写自己的调试工具，emmm我也想写一个，呐，这篇文章就是记录下自己学习的过程</p>
+<a id="more"></a>
+<p>代码参考自<a href="https://www.linuxjournal.com/article/6100" target="_blank" rel="noopener">https://www.linuxjournal.com/article/6100</a></p>
+<p>(代码稍微做了一下兼容处理，不然会报错0.0)</p>
+<h2 id="0x01-ptrace常见用法"><a href="#0x01-ptrace常见用法" class="headerlink" title="0x01 ptrace常见用法"></a>0x01 ptrace常见用法</h2><ul>
+<li><p>PTRACE_TRACEME</p>
+<p>形式：ptrace(PTRACE_TRACEME,0 ,0 ,0)<br>描述：本进程被其父进程所跟踪。其父进程应该希望跟踪子进程。</p>
+</li>
+</ul>
+<ul>
+<li><p>PTRACE_PEEKTEXT,PTRACE_PEEKDATA</p>
+<p>形式：ptrace(PTRACE_PEEKTEXT, pid, addr, data)<br>描述：从内存地址中读取一个字节，pid表示被跟踪的子进程，内存地址由addr给出，data为用户变量地址用于返回读到的数据。在Linux（i386）中用户代码段与用户数据段重合所以读取代码段和数据段数据处理是一样的。</p>
+</li>
+<li><p>PTRACE_POKETEXT,PTRACE_POKEDATA<br>形式：ptrace(PTRACE_POKETEXT, pid, addr, data)<br>描述：往内存地址中写入一个字节。pid表示被跟踪的子进程，内存地址由addr给出，data为所要写入的数据。</p>
+</li>
+<li><p>TRACE_PEEKUSR<br>形式：ptrace(PTRACE_PEEKUSR, pid, addr, data)<br>描述：从USER区域中读取一个字节，pid表示被跟踪的子进程，USER区域地址由addr给出，data为用户变量地址用于返回读到的数据。USER结构为core文件的前面一部分，它描述了进程中止时的一些状态，如：寄存器值，代码、数据段大小，代码、数据段开始地址等。在Linux（i386）中通过PTRACE_PEEKUSER和PTRACE_POKEUSR可以访问USER结构的数据有寄存器和调试寄存器。</p>
+</li>
+<li><p>PTRACE_POKEUSR<br>形式：ptrace(PTRACE_POKEUSR, pid, addr, data)<br>描述：往USER区域中写入一个字节，pid表示被跟踪的子进程，USER区域地址由addr给出，data为需写入的数据。</p>
+</li>
+<li><p>PTRACE_CONT<br>形式：ptrace(PTRACE_CONT, pid, 0, signal)<br>描述：继续执行。pid表示被跟踪的子进程，signal为0则忽略引起调试进程中止的信号，若不为0则继续处理信号signal。</p>
+</li>
+<li><p>PTRACE_SYSCALL<br>形式：ptrace(PTRACE_SYS, pid, 0, signal)<br>描述：继续执行。pid表示被跟踪的子进程，signal为0则忽略引起调试进程中止的信号，若不为0则继续处理信号signal。与PTRACE_CONT不同的是进行系统调用跟踪。在被跟踪进程继续运行直到调用系统调用开始或结束时，被跟踪进程被中止，并通知父进程。</p>
+</li>
+<li><p>PTRACE_KILL<br>形式：ptrace(PTRACE_KILL,pid)<br>描述：杀掉子进程，使它退出。pid表示被跟踪的子进程。</p>
+</li>
+<li><p>PTRACE_SINGLESTEP<br>形式：ptrace(PTRACE_KILL, pid, 0, signle)<br>描述：设置单步执行标志，单步执行一条指令。pid表示被跟踪的子进程。signal为0则忽略引起调试进程中止的信号，若不为0则继续处理信号signal。当被跟踪进程单步执行完一个指令后，被跟踪进程被中止，并通知父进程。</p>
+</li>
+<li><p>PTRACE_ATTACH<br>形式：ptrace(PTRACE_ATTACH,pid)<br>描述：跟踪指定pid 进程。pid表示被跟踪进程。被跟踪进程将成为当前进程的子进程，并进入中止状态。</p>
+</li>
+<li><p>PTRACE_DETACH 形式：ptrace(PTRACE_DETACH,pid) 描述：结束跟踪。 pid表示被跟踪的子进程。结束跟踪后被跟踪进程将继续执行。</p>
+</li>
+<li><p>PTRACE_GETREGS<br>形式：ptrace(PTRACE_GETREGS, pid, 0, data)<br>描述：读取寄存器值，pid表示被跟踪的子进程，data为用户变量地址用于返回读到的数据。此功能将读取所有17个基本寄存器的值。</p>
+</li>
+<li><p>PTRACE_SETREGS<br>形式：ptrace(PTRACE_SETREGS, pid, 0, data)<br>描述：设置寄存器值，pid表示被跟踪的子进程，data为用户数据地址。此功能将设置所有17个基本寄存器的值。</p>
+</li>
+<li><p>PTRACE_GETFPREGS 形式：ptrace(PTRACE_GETFPREGS, pid, 0, data)<br>描述：读取浮点寄存器值，pid表示被跟踪的子进程，data为用户变量地址用于返回读到的数据。此功能将读取所有浮点协处理器387的所有寄存器的值。</p>
+</li>
+<li><p>PTRACE_SETFPREGS<br>形式：ptrace(PTRACE_SETREGS, pid, 0, data)<br>描述：设置浮点寄存器值，pid表示被跟踪的子进程，data为用户数据地址。此功能将设置所有浮点协处理器387的所有寄存器的值。</p>
+</li>
+</ul>
+<h2 id="0x02-跟踪ls"><a href="#0x02-跟踪ls" class="headerlink" title="0x02 跟踪ls"></a>0x02 跟踪ls</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">//</span><br><span class="line">// Created by mask on 18-4-19.</span><br><span class="line">//</span><br><span class="line"></span><br><span class="line">#include &lt;sys/ptrace.h&gt;</span><br><span class="line">#include &lt;sys/types.h&gt;</span><br><span class="line">#include &lt;sys/wait.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;sys/user.h&gt;</span><br><span class="line">#include &lt;sys/reg.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    pid_t child;</span><br><span class="line">    long orig_eax;</span><br><span class="line">   </span><br><span class="line"></span><br><span class="line">    child = fork();</span><br><span class="line"></span><br><span class="line">    if (child==0)&#123;</span><br><span class="line">        ptrace(PTRACE_TRACEME,0,NULL,NULL);//子进程告诉内核，让别人跟踪他</span><br><span class="line">        execl(&quot;/bin/ls&quot;,&quot;ls&quot;,NULL);</span><br><span class="line">    &#125; else&#123;</span><br><span class="line">        wait(NULL);//wait函数等待内核通知，子进程结束后就会收到</span><br><span class="line">        orig_eax = ptrace(PTRACE_PEEKUSER,child,4*ORIG_EAX,NULL;//读取子进程运行时eax寄存器的值</span><br><span class="line">        printf(&quot;The child made a system call %ld\n&quot;,orig_eax);</span><br><span class="line">        ptrace(PTRACE_CONT,child,NULL,NULL);//让子进程继续运行</span><br><span class="line">    &#125;</span><br><span class="line">    return 0;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>来看一下效果,execve的调用号就是11</p>
+<img src="/2018/04/19/ptrace学习笔记I/0.png">
+<h2 id="0x03-进一步系统调用查看参数"><a href="#0x03-进一步系统调用查看参数" class="headerlink" title="0x03 进一步系统调用查看参数"></a>0x03 进一步系统调用查看参数</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">//</span><br><span class="line">// Created by mask on 18-4-19.</span><br><span class="line">//</span><br><span class="line"></span><br><span class="line">#include &lt;sys/ptrace.h&gt;</span><br><span class="line">#include &lt;sys/types.h&gt;</span><br><span class="line">#include &lt;sys/wait.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;sys/user.h&gt;</span><br><span class="line">#include &lt;sys/reg.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;syscall.h&gt;</span><br><span class="line"></span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    pid_t child;</span><br><span class="line">    long orig_eax, eax;</span><br><span class="line">    long params[3];</span><br><span class="line">    int status;</span><br><span class="line">    int insyscall =0;</span><br><span class="line">    child = fork();</span><br><span class="line">    if(child ==0)&#123;</span><br><span class="line">        ptrace(PTRACE_TRACEME,0, NULL, NULL);//子进程告诉内核让别人来跟踪</span><br><span class="line">        execl(&quot;/bin/ls&quot;,&quot;ls&quot;, NULL);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        while(1) &#123;</span><br><span class="line">            wait(&amp;status);</span><br><span class="line">            if(WIFEXITED(status))/*wait函数使用status变量来检查子进程是否已退出。它是用来判断子进程是被ptrace暂停掉还是已经运行结束并退出。有一组宏可以通过status的值来判断进程的状态，比如WIFEXITED等*/</span><br><span class="line">                break;</span><br><span class="line">            orig_eax = ptrace(PTRACE_PEEKUSER,</span><br><span class="line">                              child,4* ORIG_EAX, NULL);</span><br><span class="line">            if(orig_eax == SYS_write) &#123;    //如果是SYS_write调用</span><br><span class="line">                if(insyscall == 0) &#123;</span><br><span class="line">                    /* Syscall entry */</span><br><span class="line">                    insyscall =1;</span><br><span class="line">                    //获取参数</span><br><span class="line">                    params[0]= ptrace(PTRACE_PEEKUSER,</span><br><span class="line">                                      child,4* EBX,</span><br><span class="line">                                      NULL);</span><br><span class="line">                    params[1]= ptrace(PTRACE_PEEKUSER,</span><br><span class="line">                                      child,4* ECX,</span><br><span class="line">                                      NULL);</span><br><span class="line">                    params[2]= ptrace(PTRACE_PEEKUSER,</span><br><span class="line">                                      child,4* EDX,</span><br><span class="line">                                      NULL);</span><br><span class="line">                    printf(&quot;Write called with &quot;</span><br><span class="line">                           &quot;%ld, %ld, %ld\n&quot;,</span><br><span class="line">                           params[0], params[1],</span><br><span class="line">                           params[2]);</span><br><span class="line">                &#125; else &#123;/* Syscall exit */</span><br><span class="line">                    eax = ptrace(PTRACE_PEEKUSER,</span><br><span class="line">                                 child,4* EAX, NULL);</span><br><span class="line">                    printf(&quot;Write returned &quot;</span><br><span class="line">                           &quot;with %ld\n&quot;, eax);</span><br><span class="line">                    insyscall =0;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            ptrace(PTRACE_SYSCALL,</span><br><span class="line">                   child, NULL, NULL); /*使用PTRACE_SYSCALL作为ptrace的第一个参数，使内核在子进程做出系统调用或者准备退出的时候暂停它。*/</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行看下效果</p>
+<img src="/2018/04/19/ptrace学习笔记I/1.png">
+<p>这里我们执行的是ls命令，为什么会调用write呢，我们用strace跟踪下系统调用看看</p>
+<p>呐，确实是调用了</p>
+<img src="/2018/04/19/ptrace学习笔记I/2.png">
+<p>换一种方式实现，ptrace有专门的方式去读取系统调用或者进程终止时的寄存器的值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">//</span><br><span class="line">// Created by mask on 18-4-19.</span><br><span class="line">//</span><br><span class="line">#include &lt;sys/ptrace.h&gt;</span><br><span class="line">#include &lt;sys/types.h&gt;</span><br><span class="line">#include &lt;sys/wait.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;sys/user.h&gt;</span><br><span class="line">#include &lt;sys/reg.h&gt;</span><br><span class="line">#include &lt;sys/syscall.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line"></span><br><span class="line">int main()&#123;</span><br><span class="line"></span><br><span class="line">    pid_t child;</span><br><span class="line">    long orig_eax,eax;</span><br><span class="line">    long params[3];</span><br><span class="line">    int status;</span><br><span class="line">    int insyscall = 0;</span><br><span class="line">    struct user_regs_struct regs;</span><br><span class="line">    child = fork();</span><br><span class="line"></span><br><span class="line">    if (child==0)&#123;</span><br><span class="line">        ptrace(PTRACE_TRACEME,0,NULL,NULL);</span><br><span class="line">        execl(&quot;/bin/ls&quot;,&quot;ls&quot;,NULL);</span><br><span class="line">    &#125; else&#123;</span><br><span class="line">        while (1)&#123;</span><br><span class="line">            wait(&amp;status);</span><br><span class="line">            if (WIFEXITED(status))/*wait函数使用status变量来检查子进程是否已退出。它是用来判断子进程是被ptrace暂停掉还是已经运行结束并退出。*/</span><br><span class="line">                break;</span><br><span class="line">            orig_eax = ptrace(PTRACE_PEEKUSER,child,4*ORIG_EAX,NULL);/*PTRACE_PEEKUSER来察看write系统调用的参数*/</span><br><span class="line">            if (orig_eax==SYS_write)&#123;</span><br><span class="line">                if (insyscall==0)&#123;</span><br><span class="line">                    insyscall = 1;</span><br><span class="line">                    ptrace(PTRACE_GETREGS,child,NULL,&amp;regs);/*通过将PTRACE_PEEKUSER作为ptrace 的第一个参数进行调用，可以取得与子进程相关的寄存器值。*/</span><br><span class="line"></span><br><span class="line">                    printf(&quot;Write called with %ld,%ld,%ld\n&quot;,regs.ebx,regs.ecx,regs.edx);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                &#125; else&#123;</span><br><span class="line">                /*说明程序已经退出*/</span><br><span class="line">                    eax = ptrace(PTRACE_PEEKUSER,child,4*EAX,NULL);</span><br><span class="line">                    printf(&quot;Write returned with %ld\n&quot;,eax);/*返回值保存在eax寄存器*/</span><br><span class="line">                    insyscall = 0;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            ptrace(PTRACE_SYSCALL,child,NULL,NULL);/*使用PTRACE_SYSCALL作为ptrace的第一个参数，使内核在子进程做出系统调用或者准备退出的时候暂停它。*/</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    return 0;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看下效果</p>
+<img src="/2018/04/19/ptrace学习笔记I/3.png">
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/Hook/" rel="tag"># Hook</a>
+          
+            <a href="/tags/ptrace/" rel="tag"># ptrace</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/22/HITCON-training/" rel="next" title="HITCON-training">
+                <i class="fa fa-chevron-left"></i> HITCON-training
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Mask" />
+            
+              <p class="site-author-name" itemprop="name">Mask</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">27</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-前言"><span class="nav-number">1.</span> <span class="nav-text">0x00 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-ptrace常见用法"><span class="nav-number">2.</span> <span class="nav-text">0x01 ptrace常见用法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-跟踪ls"><span class="nav-number">3.</span> <span class="nav-text">0x02 跟踪ls</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-进一步系统调用查看参数"><span class="nav-number">4.</span> <span class="nav-text">0x03 进一步系统调用查看参数</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mask</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
