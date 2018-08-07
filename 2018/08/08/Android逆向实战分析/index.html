@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="0x00 前言本来准备写一篇长篇大论从原理到操作都写一写然后拿去投稿的，但是后来就只写了操作，那只好放到博客上自己看看了，原理分析下次再写">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android逆向实实战分析">
+<meta property="og:url" content="http://yoursite.com/2018/08/08/Android逆向实战分析/index.html">
+<meta property="og:site_name" content="Mask&#39;s Blog">
+<meta property="og:description" content="0x00 前言本来准备写一篇长篇大论从原理到操作都写一写然后拿去投稿的，但是后来就只写了操作，那只好放到博客上自己看看了，原理分析下次再写">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/0.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/5.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/6.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/7.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/8.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/11.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/9.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/10.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/12.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/13.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/14.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/15.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/16.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/17.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/18.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/19.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/20.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/21.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/22.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/23.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/24.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/26.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/27.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/28.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/30.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/31.png">
+<meta property="og:updated_time" content="2018-08-07T17:35:22.574Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android逆向实实战分析">
+<meta name="twitter:description" content="0x00 前言本来准备写一篇长篇大论从原理到操作都写一写然后拿去投稿的，但是后来就只写了操作，那只好放到博客上自己看看了，原理分析下次再写">
+<meta name="twitter:image" content="http://yoursite.com/2018/08/08/Android逆向实战分析/0.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/08/08/Android逆向实战分析/"/>
+
+
+
+
+
+  <title>Android逆向实实战分析 | Mask's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Mask's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/About/" rel="section">
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/08/Android逆向实战分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mask">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mask's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android逆向实实战分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-08T01:25:13+08:00">
+                2018-08-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>本来准备写一篇长篇大论从原理到操作都写一写然后拿去投稿的，但是后来就只写了操作，那只好放到博客上自己看看了，原理分析下次再写</p>
+<a id="more"></a>
+<h2 id="0x01-Java层分析"><a href="#0x01-Java层分析" class="headerlink" title="0x01 Java层分析"></a>0x01 Java层分析</h2><p>咱先看看Java层，用jadx打开apk</p>
+<img src="/2018/08/08/Android逆向实战分析/0.png">
+<p>很明显，应用被加固了，一般来说，应用加固常用的方法就是外面套一层壳，然后壳程序进行一些解密加载变换的操作，将源应用还原出来，然后进行加载。</p>
+<p>那么必然有一个壳程序的入口，那么我们看看入口在哪</p>
+<img src="/2018/08/08/Android逆向实战分析/1.png">
+<p>咱知道，因为Application是早于activity的，那么常见的壳入口一般都会设置在这，这样就能早于源Activity执行一些操作，那么咱跟过去瞅瞅壳在java层都做了些啥</p>
+<p>首先这里有一点，那就是attachBaseContext函数是早于onCreate函数执行的，咱们跟过去看看它做了啥</p>
+<img src="/2018/08/08/Android逆向实战分析/2.png">
+<p>咱们看看关键的，跟进这个a函数</p>
+<img src="/2018/08/08/Android逆向实战分析/3.png">
+<p>此处调用了两个主要函数，一个是函数e,一个是native函数load，咱先一个一个来，跟进这个e函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br></pre></td><td class="code"><pre><span class="line">private void e() &#123;</span><br><span class="line">        int i;</span><br><span class="line">        String str;</span><br><span class="line">        int i2 = 0;</span><br><span class="line">        ApplicationInfo applicationInfo = getApplicationInfo();</span><br><span class="line">        String str2 = applicationInfo.dataDir + &quot;/tx_shell&quot;;</span><br><span class="line">        b = applicationInfo.sourceDir;</span><br><span class="line">        int i3 = VERSION.SDK_INT;</span><br><span class="line">        if (i3 &lt; 19) &#123;</span><br><span class="line">            i3 = 0;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            if (i3 &gt; 19) &#123;</span><br><span class="line">                String[] strArr = Build.SUPPORTED_64_BIT_ABIS;</span><br><span class="line">                if (strArr != null &amp;&amp; strArr.length &gt; 1) &#123;</span><br><span class="line">                    i3 = 1;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; else if (new File(&quot;/system/lib64&quot;).exists()) &#123;</span><br><span class="line">                i3 = 1;</span><br><span class="line">            &#125;</span><br><span class="line">            i3 = 0;</span><br><span class="line">        &#125;</span><br><span class="line">        String str3 = null;</span><br><span class="line">        if (VERSION.SDK_INT &lt; 21) &#123;</span><br><span class="line">            str3 = Build.CPU_ABI;</span><br><span class="line">        &#125;</span><br><span class="line">        if ((str3 == null || str3.length() &lt; 2) &amp;&amp; VERSION.SDK_INT &gt;= 21) &#123;</span><br><span class="line">            str3 = Build.SUPPORTED_ABIS[0];</span><br><span class="line">        &#125;</span><br><span class="line">        if (str3.toLowerCase(Locale.US).contains(&quot;x86&quot;)) &#123;</span><br><span class="line">            i = 0;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            if (VERSION.SDK_INT &gt;= 21) &#123;</span><br><span class="line">                String[] strArr2 = Build.SUPPORTED_ABIS;</span><br><span class="line">                if (strArr2 != null) &#123;</span><br><span class="line">                    i = 1;</span><br><span class="line">                    for (String str4 : strArr2) &#123;</span><br><span class="line">                        if (str4.toLowerCase(Locale.US).contains(&quot;x86&quot;)) &#123;</span><br><span class="line">                            i = 0;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            i = 1;</span><br><span class="line">        &#125;</span><br><span class="line">        int i4 = str3.toLowerCase(Locale.US).contains(&quot;mips&quot;) ? 1 : 0;</span><br><span class="line">        String str5 = VERSION.SDK_INT &gt; 8 ? applicationInfo.nativeLibraryDir : &quot;/data/data/&quot; + mPKName + &quot;/lib&quot;;</span><br><span class="line">        String str6 = &quot;&quot;;</span><br><span class="line">        String str7 = &quot;&quot;;</span><br><span class="line">        String str8 = &quot;&quot;;</span><br><span class="line">        str8 = &quot;&quot;;</span><br><span class="line">        if (i != 0) &#123;</span><br><span class="line">            str4 = f() + &quot;-&quot; + c();</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            str4 = &quot;shellx-&quot; + c();</span><br><span class="line">            str8 = f() + &quot;-&quot; + c();</span><br><span class="line">        &#125;</span><br><span class="line">        str6 = str6 + &quot;lib&quot; + str4 + &quot;.so&quot;;</span><br><span class="line">        str8 = str7 + &quot;lib&quot; + str8 + &quot;.so&quot;;</span><br><span class="line">        File file = new File(str5 + &quot;/&quot; + str6);</span><br><span class="line">        File file2 = new File(str2 + &quot;/&quot; + str8);</span><br><span class="line">        if (i == 0 &amp;&amp; VERSION.SDK_INT &lt; 19) &#123;</span><br><span class="line">            if (!file2.exists()) &#123;</span><br><span class="line">                if (ZipUtil.exist(b, &quot;lib/armeabi/&quot; + str8) == 0) &#123;</span><br><span class="line">                    if (ZipUtil.extract(b, &quot;lib/armeabi/&quot; + str8, str2 + &quot;/&quot; + str8) == 0) &#123;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; else if (ZipUtil.extract(b, &quot;lib/armeabi-v7a/&quot; + str8, str2 + &quot;/&quot; + str8) == 0) &#123;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            try &#123;</span><br><span class="line">                Runtime.getRuntime().exec(&quot;chmod 700 &quot; + str2 + &quot;/&quot; + str8);</span><br><span class="line">                System.load(str2 + &quot;/&quot; + str8);</span><br><span class="line">            &#125; catch (IOException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; else if (file.exists()) &#123;</span><br><span class="line">            Log.d(&quot;SecShell&quot;, &quot;start load lib&quot;);</span><br><span class="line">            System.loadLibrary(str4);</span><br><span class="line">            Log.d(&quot;SecShell&quot;, &quot;end load lib&quot;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            String str9;</span><br><span class="line">            str5 = &quot;&quot;;</span><br><span class="line">            str8 = str2 + &quot;/&quot; + str6;</span><br><span class="line">            if (ZipUtil.exist(b, &quot;lib/&quot; + str3 + &quot;/&quot; + str6) == 0) &#123;</span><br><span class="line">                str9 = &quot;lib/&quot; + str3 + &quot;/&quot; + str6;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                if (i3 != 0) &#123;</span><br><span class="line">                    if (i != 0) &#123;</span><br><span class="line">                        if (ZipUtil.exist(b, &quot;lib/arm64-v8a/&quot; + str6) == 0) &#123;</span><br><span class="line">                            str9 = &quot;lib/arm64-v8a/&quot; + str6;</span><br><span class="line">                        &#125; else if (ZipUtil.exist(b, &quot;lib/armeabi/&quot; + str6) == 0) &#123;</span><br><span class="line">                            str9 = &quot;lib/armeabi/&quot; + str6;</span><br><span class="line">                        &#125; else if (ZipUtil.exist(b, &quot;lib/armeabi-v7a/&quot; + str6) == 0) &#123;</span><br><span class="line">                            str9 = &quot;lib/armeabi-v7a/&quot; + str6;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125; else if (ZipUtil.exist(b, &quot;lib/x86_64/&quot; + str6) == 0) &#123;</span><br><span class="line">                        str9 = &quot;lib/x86_64/&quot; + str6;</span><br><span class="line">                    &#125; else if (ZipUtil.exist(b, &quot;lib/arm64-v8a/&quot; + str6) == 0) &#123;</span><br><span class="line">                        str9 = &quot;lib/arm64-v8a/&quot; + str6;</span><br><span class="line">                    &#125; else if (ZipUtil.exist(b, &quot;lib/x86/&quot; + str6) == 0) &#123;</span><br><span class="line">                        str9 = &quot;lib/x86/&quot; + str6;</span><br><span class="line">                    &#125; else if (ZipUtil.exist(b, &quot;lib/armeabi/&quot; + str6) == 0) &#123;</span><br><span class="line">                        str9 = &quot;lib/armeabi/&quot; + str6;</span><br><span class="line">                    &#125; else if (ZipUtil.exist(b, &quot;lib/armeabi-v7a/&quot; + str6) == 0) &#123;</span><br><span class="line">                        str9 = &quot;lib/armeabi-v7a/&quot; + str6;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; else if (i != 0) &#123;</span><br><span class="line">                    if (i4 == 0 || ZipUtil.exist(b, &quot;lib/mips/&quot; + str6) != 0) &#123;</span><br><span class="line">                        str9 = str5;</span><br><span class="line">                    &#125; else &#123;</span><br><span class="line">                        i2 = 1;</span><br><span class="line">                        str9 = &quot;lib/mips/&quot; + str6;</span><br><span class="line">                    &#125;</span><br><span class="line">                    if (i2 == 0) &#123;</span><br><span class="line">                        if (ZipUtil.exist(b, &quot;lib/armeabi/&quot; + str6) == 0) &#123;</span><br><span class="line">                            str9 = &quot;lib/armeabi/&quot; + str6;</span><br><span class="line">                        &#125; else if (ZipUtil.exist(b, &quot;lib/armeabi-v7a/&quot; + str6) == 0) &#123;</span><br><span class="line">                            str9 = &quot;lib/armeabi-v7a/&quot; + str6;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; else if (ZipUtil.exist(b, &quot;lib/x86/&quot; + str6) == 0) &#123;</span><br><span class="line">                    str9 = &quot;lib/x86/&quot; + str6;</span><br><span class="line">                &#125; else if (ZipUtil.exist(b, &quot;lib/armeabi/&quot; + str6) == 0) &#123;</span><br><span class="line">                    str9 = &quot;lib/armeabi/&quot; + str6;</span><br><span class="line">                &#125; else if (ZipUtil.exist(b, &quot;lib/armeabi-v7a/&quot; + str6) == 0) &#123;</span><br><span class="line">                    str9 = &quot;lib/armeabi-v7a/&quot; + str6;</span><br><span class="line">                &#125;</span><br><span class="line">                str9 = str5;</span><br><span class="line">            &#125;</span><br><span class="line">            if (ZipUtil.extract(b, str9, str8) == 0) &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    Runtime.getRuntime().exec(&quot;chmod 700 &quot; + str8);</span><br><span class="line">                    System.load(str8);</span><br><span class="line">                &#125; catch (IOException e2) &#123;</span><br><span class="line">                    e2.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>有点小长，作用就是加载对于的so库，先是判断一下存不存在，以及根据对应的架构加载相应的so，那么这么多so文件，到底加载了哪个呢，来看这</p>
+<img src="/2018/08/08/Android逆向实战分析/4.png">
+<p>咱们看看f函数以及c函数都返回了啥</p>
+<img src="/2018/08/08/Android逆向实战分析/5.png">
+<img src="/2018/08/08/Android逆向实战分析/6.png">
+<p>那么很明显了，咱们打开这个so文件进行查看</p>
+<p>IDA打开，各种异常报错，先不管，强制打开</p>
+<img src="/2018/08/08/Android逆向实战分析/7.png">
+<p>打开之后发现所有函数都没识别</p>
+<img src="/2018/08/08/Android逆向实战分析/8.png">
+<p>那么很明显，so文件进行了加密，静态分析这条路暂时就走不通了，那么咱这就开始IDA动态分析</p>
+<h2 id="0x02-so文件动态分析"><a href="#0x02-so文件动态分析" class="headerlink" title="0x02 so文件动态分析"></a>0x02 so文件动态分析</h2><p>动态分析的烦处就在于需要找到各种反调试操作然后绕过它，这篇文章会详细讲讲这个</p>
+<p>IDA怎样动态调试就不介绍了，要是什么都写一通的话就很累了</p>
+<p>附加上调试后，F9运行几次后发现直接异常退出了，那么就存在反调试，</p>
+<img src="/2018/08/08/Android逆向实战分析/11.png">
+<p>这里讲讲几个点</p>
+<p>一是.init/init_array</p>
+<p>二是jni_Onload函数</p>
+<p>一般一些初始化，加解密，反调试操作都会放在这（init_array要早于jni_Onload函数执行），那么咱们先在这两处下断点</p>
+<p>将手机下的 <code>/system/bin/linker</code>以及<code>/system/lib/libdvm.so</code>文件放入IDA中</p>
+<p>在linker中搜索 [ Calling %s @ %p for ‘%s’ ]” ，然后在此处下断</p>
+<img src="/2018/08/08/Android逆向实战分析/9.png">
+<p>在libdvm.so的dvmLoadNativeCode 函数下断</p>
+<img src="/2018/08/08/Android逆向实战分析/10.png">
+<p>OK，断点下好后，咱继续开始调试</p>
+<p>运行个几次后，开始进入libshella-2.10.1.so文件</p>
+<img src="/2018/08/08/Android逆向实战分析/12.png">
+<p>这里按快捷键P让IDA将它识别成函数</p>
+<img src="/2018/08/08/Android逆向实战分析/13.png">
+<p>之后呢，咱们F5查看伪代码会发现是有两个循环的操作，咱先不知道他是干啥，先慢慢单步执行</p>
+<p>然后大概单步N下后发现又回到linker处了</p>
+<img src="/2018/08/08/Android逆向实战分析/14.png">
+<p>那么，大胆猜测，init处的函数应该以及执行完了，那么是不是so已经解密了呢？咱还不确定，不管，先dump下来看看</p>
+<img src="/2018/08/08/Android逆向实战分析/15.png">
+<p>打开dump下来的so文件</p>
+<p>依然报异常，先强制打开</p>
+<img src="/2018/08/08/Android逆向实战分析/16.png">
+<p>一个一个看，可以发现大部分函数好像已经解密，但是还是需要修复，因为我们有很多系统函数还是没有识别出来</p>
+<p>咱利用so修复工具修复一下section表</p>
+<p>修复完后发现jni_Onload函数已经解密，而且大部分系统函数也是别出来了（这里有个地方贼好玩，jni_Onload函数里调用jni_Onload函数，0.0，先不管，后面动态调的时候就能见分晓）</p>
+<img src="/2018/08/08/Android逆向实战分析/17.png">
+<p>这个时候，东瞧瞧，西看看</p>
+<img src="/2018/08/08/Android逆向实战分析/18.png">
+<img src="/2018/08/08/Android逆向实战分析/19.png">
+<img src="/2018/08/08/Android逆向实战分析/20.png">
+<p>看的有点晕0.0，好像差不多了</p>
+<p>咱刚刚调到哪来着？</p>
+<p>哦对了，刚刚执行完init段的解密函数，那么咱现在去jni_Onload函数瞅瞅</p>
+<p>为了不让反调试干扰咱们，咱先处理掉这个</p>
+<p>这里就直接说操作了，没有为啥，你调个几百行你就晓得哪有反调试了</p>
+<p>第一处：</p>
+<p>回到刚才解密函数那，此处看起了一个反调试进程，咱把它nop掉</p>
+<img src="/2018/08/08/Android逆向实战分析/21.png">
+<p>咱们可以确认下，以面失误，一步步跟进这个函数</p>
+<p>赞和刚才解密出的函数进行个对比，没错，九四它了</p>
+<img src="/2018/08/08/Android逆向实战分析/22.png">
+<p>这里开启了一个线程，具体干了啥，检查了啥，有兴趣都可以更一下，也就那些个操作</p>
+<p>我们这直接先把他干掉</p>
+<img src="/2018/08/08/Android逆向实战分析/23.png">
+<p>然后继续运行</p>
+<p>进入jni_Onload函数，咱继续对比下</p>
+<img src="/2018/08/08/Android逆向实战分析/24.png">
+<p>此处有个raise(9)的操作，也是反调试杀死进程，咱同上，把此处nop掉</p>
+<p>执行完此处的时候，咱们已经获取到了新的jni_Onload地址了，跳到v7处进行查看</p>
+<img src="/2018/08/08/Android逆向实战分析/26.png">
+<p>此处有一个点，Thumb和arm模式的转换，因为IDA并不能每次都那么好地识别，所以需要手动转换（有个好记得办法，地址为奇数，那么就是Thumb)</p>
+<p>快捷键alt+g,将value修改为1即可，然后按P创建函数</p>
+<img src="/2018/08/08/Android逆向实战分析/27.png">
+<p>看不懂啊，这写的啥玩意儿？</p>
+<p>先别着急，慢慢来看</p>
+<p>先导入下JNI常用的几个结构体</p>
+<img src="/2018/08/08/Android逆向实战分析/28.png">
+<p>然后对函数进行查看以及结构体修复然后函数重命名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">int __fastcall sub_6048B912(JavaVM *a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10)</span><br><span class="line">&#123;</span><br><span class="line">  signed int v10; // r4</span><br><span class="line">  JNIEnv *v11; // r6</span><br><span class="line"></span><br><span class="line">  v10 = 0;</span><br><span class="line">  v11 = a1;</span><br><span class="line">  a6 = 0;</span><br><span class="line">  if ( Findclass(a1, &amp;a6) )</span><br><span class="line">  &#123;</span><br><span class="line">    if ( Findclass(v11, &amp;a6) )</span><br><span class="line">    &#123;</span><br><span class="line">      if ( Findclass(v11, &amp;a6) )</span><br><span class="line">      &#123;</span><br><span class="line">        if ( Findclass(v11, &amp;a6) )</span><br><span class="line">          return (a10)(v10, a5, a6);</span><br><span class="line">        v10 = 65537;</span><br><span class="line">      &#125;</span><br><span class="line">      else</span><br><span class="line">      &#123;</span><br><span class="line">        v10 = 65538;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">      v10 = 65540;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    v10 = 65542;</span><br><span class="line">  &#125;</span><br><span class="line">  if ( a6 )</span><br><span class="line">  &#123;</span><br><span class="line">    string_init();</span><br><span class="line">    sub_6048B8D4(a6);</span><br><span class="line">  &#125;</span><br><span class="line">  return (a10)(v10, a5, a6);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>咱看看这个string_init函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br></pre></td><td class="code"><pre><span class="line">unsigned int string_init()</span><br><span class="line">&#123;</span><br><span class="line">  unsigned int result; // r0</span><br><span class="line"></span><br><span class="line">  dword_604A4068 = &quot;java/lang/String&quot;;</span><br><span class="line">  dword_604A406C = &quot;getBytes&quot;;</span><br><span class="line">  dword_604A4070 = &quot;()[B&quot;;</span><br><span class="line">  dword_604A4074 = &quot;android/os/Build$VERSION&quot;;</span><br><span class="line">  dword_604A4078 = &quot;SDK_INT&quot;;</span><br><span class="line">  dword_604A407C = &amp;unk_6049E707;</span><br><span class="line">  dword_604A408C = &quot;android/content/ContextWrapper&quot;;</span><br><span class="line">  dword_604A4080 = &quot;android/app/ActivityThread&quot;;</span><br><span class="line">  dword_604A4084 = &quot;currentActivityThread&quot;;</span><br><span class="line">  dword_604A4090 = &quot;getPackageName&quot;;</span><br><span class="line">  dword_604A4088 = &quot;()Landroid/app/ActivityThread;&quot;;</span><br><span class="line">  dword_604A40D0 = &quot;Ljava/lang/ClassLoader;&quot;;</span><br><span class="line">  dword_604A4094 = &quot;()Ljava/lang/String;&quot;;</span><br><span class="line">  dword_604A40D8 = &quot;java/lang/ClassLoader&quot;;</span><br><span class="line">  dword_604A4098 = &quot;mPackages&quot;;</span><br><span class="line">  dword_604A409C = &quot;Ljava/util/HashMap;&quot;;</span><br><span class="line">  dword_604A40A0 = &quot;Landroid/util/ArrayMap;&quot;;</span><br><span class="line">  dword_604A40A4 = &quot;java/util/HashMap&quot;;</span><br><span class="line">  dword_604A40A8 = &quot;android/util/ArrayMap&quot;;</span><br><span class="line">  dword_604A40AC = &quot;(Ljava/lang/Object;)Ljava/lang/Object;&quot;;</span><br><span class="line">  dword_604A40B0 = &quot;()Ljava/lang/Object;&quot;;</span><br><span class="line">  dword_604A40B4 = &amp;unk_6049E821;</span><br><span class="line">  dword_604A40B8 = &quot;java/lang/ref/WeakReference&quot;;</span><br><span class="line">  dword_604A40BC = &quot;android/app/ActivityThread$PackageInfo&quot;;</span><br><span class="line">  dword_604A40C0 = &quot;Landroid/app/ActivityThread$PackageInfo;&quot;;</span><br><span class="line">  dword_604A40C4 = &quot;android/app/LoadedApk&quot;;</span><br><span class="line">  dword_604A40C8 = &quot;Landroid/app/LoadedApk;&quot;;</span><br><span class="line">  dword_604A40CC = &quot;mClassLoader&quot;;</span><br><span class="line">  dword_604A40D4 = &quot;()Ljava/lang/ClassLoader;&quot;;</span><br><span class="line">  dword_604A40DC = &quot;getApplicationInfo&quot;;</span><br><span class="line">  dword_604A40E0 = &quot;()Landroid/content/pm/ApplicationInfo;&quot;;</span><br><span class="line">  dword_604A40E4 = &quot;android/content/pm/ApplicationInfo&quot;;</span><br><span class="line">  dword_604A40E8 = &quot;sourceDir&quot;;</span><br><span class="line">  dword_604A40EC = &quot;Ljava/lang/String;&quot;;</span><br><span class="line">  dword_604A40F0 = &quot;getParent&quot;;</span><br><span class="line">  dword_604A40F4 = &quot;&lt;init&gt;&quot;;</span><br><span class="line">  dword_604A40F8 = &quot;(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/ClassLoader;)V&quot;;</span><br><span class="line">  dword_604A40FC = &quot;([BLjava/lang/String;)V&quot;;</span><br><span class="line">  dword_604A4100 = &quot;/system/lib/libdvm.so&quot;;</span><br><span class="line">  dword_604A4104 = &quot;dexFileParse&quot;;</span><br><span class="line">  dword_604A4108 = &quot;_Z12dexFileParsePKhji&quot;;</span><br><span class="line">  dword_604A410C = &quot;dvmDexFileOpenPartial&quot;;</span><br><span class="line">  dword_604A4110 = &quot;_Z21dvmDexFileOpenPartialPKviPP6DvmDex&quot;;</span><br><span class="line">  dword_604A4114 = &quot;dexCreateClassLookup&quot;;</span><br><span class="line">  dword_604A4118 = &quot;_Z20dexCreateClassLookupP7DexFile&quot;;</span><br><span class="line">  dword_604A411C = &quot;dexSwapAndVerify&quot;;</span><br><span class="line">  dword_604A4120 = &quot;dexFixByteOrdering&quot;;</span><br><span class="line">  dword_604A4124 = &quot;_Z16dexSwapAndVerifyPhi&quot;;</span><br><span class="line">  dword_604A4128 = &quot;dvmDexFileFree&quot;;</span><br><span class="line">  dword_604A412C = &quot;_Z14dvmDexFileFreeP6DvmDex&quot;;</span><br><span class="line">  dword_604A4130 = &quot;dalvik/system/DexClassLoader&quot;;</span><br><span class="line">  dword_604A4134 = &quot;mDexs&quot;;</span><br><span class="line">  dword_604A4138 = &quot;[Ldalvik/system/DexFile;&quot;;</span><br><span class="line">  dword_604A413C = &quot;dalvik/system/DexPathList&quot;;</span><br><span class="line">  dword_604A4140 = &quot;dexElements&quot;;</span><br><span class="line">  dword_604A4144 = &quot;[Ldalvik/system/DexPathList$Element;&quot;;</span><br><span class="line">  dword_604A4148 = &quot;dalvik/system/DexPathList$Element&quot;;</span><br><span class="line">  dword_604A414C = &quot;dexFile&quot;;</span><br><span class="line">  dword_604A4150 = &quot;Ldalvik/system/DexFile;&quot;;</span><br><span class="line">  dword_604A4154 = &quot;dalvik/system/DexFile&quot;;</span><br><span class="line">  dword_604A4158 = &quot;dalvik/system/BaseDexClassLoader&quot;;</span><br><span class="line">  dword_604A415C = &quot;pathList&quot;;</span><br><span class="line">  dword_604A4160 = &quot;Ldalvik/system/DexPathList;&quot;;</span><br><span class="line">  dword_604A4168 = &quot;()Landroid/app/ActivityThread;&quot;;</span><br><span class="line">  dword_604A416C = &quot;currentActivityThread&quot;;</span><br><span class="line">  dword_604A4164 = &quot;android/app/ActivityThread&quot;;</span><br><span class="line">  dword_604A4170 = &quot;mBoundApplication&quot;;</span><br><span class="line">  dword_604A4184 = &quot;Landroid/app/Application;&quot;;</span><br><span class="line">  dword_604A4174 = &quot;Landroid/app/ActivityThread$AppBindData;&quot;;</span><br><span class="line">  dword_604A4188 = &quot;android/app/Application&quot;;</span><br><span class="line">  dword_604A4178 = &quot;android/app/ActivityThread$AppBindData&quot;;</span><br><span class="line">  dword_604A418C = &quot;mAllApplications&quot;;</span><br><span class="line">  dword_604A417C = &quot;info&quot;;</span><br><span class="line">  dword_604A4190 = &quot;Ljava/util/ArrayList;&quot;;</span><br><span class="line">  dword_604A4180 = &quot;mInitialApplication&quot;;</span><br><span class="line">  dword_604A4194 = &quot;remove&quot;;</span><br><span class="line">  dword_604A41BC = &quot;mInitialApplication&quot;;</span><br><span class="line">  dword_604A4198 = &quot;(Ljava/lang/Object;)Z&quot;;</span><br><span class="line">  dword_604A41C0 = &quot;mProviderMap&quot;;</span><br><span class="line">  dword_604A419C = &quot;java/util/ArrayList&quot;;</span><br><span class="line">  dword_604A41C4 = &quot;values&quot;;</span><br><span class="line">  dword_604A41A0 = &quot;mApplicationInfo&quot;;</span><br><span class="line">  dword_604A41C8 = &quot;()Ljava/util/Collection;&quot;;</span><br><span class="line">  dword_604A41A4 = &quot;Landroid/content/pm/ApplicationInfo;&quot;;</span><br><span class="line">  dword_604A41CC = &quot;java/util/Collection&quot;;</span><br><span class="line">  dword_604A41A8 = &quot;className&quot;;</span><br><span class="line">  dword_604A41D0 = &quot;iterator&quot;;</span><br><span class="line">  dword_604A41AC = &quot;appInfo&quot;;</span><br><span class="line">  dword_604A41D4 = &quot;()Ljava/util/Iterator;&quot;;</span><br><span class="line">  dword_604A41B0 = &quot;mApplication&quot;;</span><br><span class="line">  dword_604A41D8 = &quot;java/util/Iterator&quot;;</span><br><span class="line">  dword_604A41B4 = &quot;makeApplication&quot;;</span><br><span class="line">  dword_604A41DC = &quot;hasNext&quot;;</span><br><span class="line">  dword_604A41B8 = &quot;(ZLandroid/app/Instrumentation;)Landroid/app/Application;&quot;;</span><br><span class="line">  dword_604A41E0 = &amp;unk_6049EE4E;</span><br><span class="line">  dword_604A41E4 = &quot;next&quot;;</span><br><span class="line">  dword_604A41E8 = &quot;android/app/ActivityThread$ProviderClientRecord&quot;;</span><br><span class="line">  dword_604A41EC = &quot;android/app/ActivityThread$ProviderRecord&quot;;</span><br><span class="line">  dword_604A41F0 = &quot;mLocalProvider&quot;;</span><br><span class="line">  dword_604A41F4 = &quot;Landroid/content/ContentProvider;&quot;;</span><br><span class="line">  dword_604A41F8 = &quot;android/content/ContentProvider&quot;;</span><br><span class="line">  dword_604A41FC = &quot;mContext&quot;;</span><br><span class="line">  dword_604A4200 = &quot;Landroid/content/Context;&quot;;</span><br><span class="line">  dword_604A4204 = &quot;onCreate&quot;;</span><br><span class="line">  dword_604A4208 = &amp;unk_6049EF2E;</span><br><span class="line">  dword_604A420C = &quot;(Ljava/lang/String;I)Z&quot;;</span><br><span class="line">  dword_604A4210 = &quot;mCookie&quot;;</span><br><span class="line">  dword_604A4214 = &quot;ensureInit&quot;;</span><br><span class="line">  dword_604A4218 = &amp;unk_6049EF2E;</span><br><span class="line">  dword_604A421C = &quot;assets/shell.dat&quot;;</span><br><span class="line">  dword_604A4220 = &quot;assets&quot;;</span><br><span class="line">  dword_604A4224 = &quot;java/lang/ClassLoader&quot;;</span><br><span class="line">  result = 0x1C0u;</span><br><span class="line">  dword_604A4228 = &quot;parent&quot;;</span><br><span class="line">  dword_604A422C = &quot;Ljava/lang/ClassLoader;&quot;;</span><br><span class="line">  dword_604A4230 = &quot;dalvik/system/PathClassLoader&quot;;</span><br><span class="line">  dword_604A4234 = &quot;(Ljava/lang/String;Ljava/lang/String;Ljava/lang/ClassLoader;)V&quot;;</span><br><span class="line">  dword_604A4238 = &quot;shell.dat&quot;;</span><br><span class="line">  dword_604A423C = &quot;assets/meta-data/DEG.BIN&quot;;</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里对字符串进行了初始化的操作，方便后面的函数调用</p>
+<p>再跟进下一个函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">jclass __fastcall sub_6048B8D4(int a1)</span><br><span class="line">&#123;</span><br><span class="line">  jclass v1; // r4</span><br><span class="line"></span><br><span class="line">  v1 = RegisterNatives0(a1, &quot;com/tencent/StubShell/TxAppEntry&quot;, &amp;unk_604A4004, 5);</span><br><span class="line">  if ( v1 )</span><br><span class="line">    return 1;</span><br><span class="line">  android_P();</span><br><span class="line">  return v1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里进行了native函数的注册</p>
+<p>跟过去看下注册了哪些函数</p>
+<img src="/2018/08/08/Android逆向实战分析/30.png">
+<p>此处IDA没有识别出来 ,</p>
+<p>直接右键-&gt;Structure-&gt;JNINativeMethod </p>
+<img src="/2018/08/08/Android逆向实战分析/31.png">
+<p>咱们跟过去查看下(有几个函数名进行了重命名)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">int *__fastcall sub_60492C54(JNIEnv *a1, int a2, int a3)</span><br><span class="line">&#123;</span><br><span class="line">  JNIEnv *v3; // r4</span><br><span class="line">  int v4; // r6</span><br><span class="line">  int v5; // r0</span><br><span class="line">  int *result; // r0</span><br><span class="line">  BOOL v7; // r5</span><br><span class="line"></span><br><span class="line">  v3 = a1;</span><br><span class="line">  v4 = a3;</span><br><span class="line">  v5 = sub_6048DDFC();</span><br><span class="line">  (unk_6049C20C)(v5);</span><br><span class="line">  android_P();</span><br><span class="line">  result = (unk_6048DFF4)(v3);</span><br><span class="line">  if ( result )</span><br><span class="line">  &#123;</span><br><span class="line">    v7 = sub_6048F59C(v3);</span><br><span class="line">    (unk_6048B34C)(v3);</span><br><span class="line">    if ( v7 )</span><br><span class="line">      result = art_load(v3, v4, 0, 0);</span><br><span class="line">    else</span><br><span class="line">      result = dalvik_load(v3, v4, 0);</span><br><span class="line">  &#125;</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>查看下dalvik_load</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br></pre></td><td class="code"><pre><span class="line">int *__fastcall dalvik_load(int a1, int a2, int a3)</span><br><span class="line">&#123;</span><br><span class="line">  int v3; // r6</span><br><span class="line">  int v4; // r0</span><br><span class="line">  int v5; // r4</span><br><span class="line">  int v6; // r0</span><br><span class="line">  int v7; // r0</span><br><span class="line">  int v8; // r0</span><br><span class="line">  _DWORD *v9; // r7</span><br><span class="line">  int v10; // r0</span><br><span class="line">  int v11; // r0</span><br><span class="line">  int v12; // r5</span><br><span class="line">  _DWORD *v13; // r3</span><br><span class="line">  int v14; // r4</span><br><span class="line">  int v15; // r1</span><br><span class="line">  int v16; // r4</span><br><span class="line">  int v17; // ST14_4</span><br><span class="line">  int v18; // r0</span><br><span class="line">  int v19; // r1</span><br><span class="line">  int v20; // r1</span><br><span class="line">  int v21; // r5</span><br><span class="line">  int v22; // ST00_4</span><br><span class="line">  int v23; // r0</span><br><span class="line">  int v24; // ST00_4</span><br><span class="line">  int v25; // r5</span><br><span class="line">  int v26; // r4</span><br><span class="line">  int v27; // r5</span><br><span class="line">  int v28; // r4</span><br><span class="line">  int v29; // r2</span><br><span class="line">  int v30; // r3</span><br><span class="line">  int v31; // r3</span><br><span class="line">  int v32; // r3</span><br><span class="line">  int v33; // r5</span><br><span class="line">  int v34; // r2</span><br><span class="line">  int v35; // r5</span><br><span class="line">  int v36; // r2</span><br><span class="line">  int v37; // r0</span><br><span class="line">  int v38; // r4</span><br><span class="line">  int v39; // r0</span><br><span class="line">  int v40; // r5</span><br><span class="line">  int m; // r4</span><br><span class="line">  int v42; // r0</span><br><span class="line">  int v43; // r0</span><br><span class="line">  int i; // r4</span><br><span class="line">  int v45; // r0</span><br><span class="line">  int v46; // r5</span><br><span class="line">  int v47; // r0</span><br><span class="line">  int j; // r4</span><br><span class="line">  int v49; // r0</span><br><span class="line">  int v50; // r5</span><br><span class="line">  int v51; // r4</span><br><span class="line">  int v52; // r0</span><br><span class="line">  int k; // r4</span><br><span class="line">  int v54; // r0</span><br><span class="line">  int v55; // r5</span><br><span class="line">  int v56; // r4</span><br><span class="line">  int v57; // r7</span><br><span class="line">  int v58; // r0</span><br><span class="line">  int v59; // r0</span><br><span class="line">  int l; // r4</span><br><span class="line">  int v61; // r0</span><br><span class="line">  _DWORD *v62; // r4</span><br><span class="line">  int v63; // r0</span><br><span class="line">  int *result; // r0</span><br><span class="line">  _DWORD *v65; // [sp+10h] [bp-180h]</span><br><span class="line">  int v66; // [sp+10h] [bp-180h]</span><br><span class="line">  int v67; // [sp+14h] [bp-17Ch]</span><br><span class="line">  int v68; // [sp+14h] [bp-17Ch]</span><br><span class="line">  int v69; // [sp+14h] [bp-17Ch]</span><br><span class="line">  int v70; // [sp+18h] [bp-178h]</span><br><span class="line">  int v71; // [sp+18h] [bp-178h]</span><br><span class="line">  int v72; // [sp+1Ch] [bp-174h]</span><br><span class="line">  signed int v73; // [sp+1Ch] [bp-174h]</span><br><span class="line">  int v74; // [sp+1Ch] [bp-174h]</span><br><span class="line">  int v75; // [sp+20h] [bp-170h]</span><br><span class="line">  int v76; // [sp+24h] [bp-16Ch]</span><br><span class="line">  int v77; // [sp+24h] [bp-16Ch]</span><br><span class="line">  int v78; // [sp+28h] [bp-168h]</span><br><span class="line">  int v79; // [sp+2Ch] [bp-164h]</span><br><span class="line">  signed int v80; // [sp+2Ch] [bp-164h]</span><br><span class="line">  int v81; // [sp+30h] [bp-160h]</span><br><span class="line">  int v82; // [sp+34h] [bp-15Ch]</span><br><span class="line">  int v83; // [sp+38h] [bp-158h]</span><br><span class="line">  int v84; // [sp+3Ch] [bp-154h]</span><br><span class="line">  int v85; // [sp+40h] [bp-150h]</span><br><span class="line">  int v86; // [sp+44h] [bp-14Ch]</span><br><span class="line">  int v87; // [sp+4Ch] [bp-144h]</span><br><span class="line">  int v88; // [sp+50h] [bp-140h]</span><br><span class="line">  int v89; // [sp+54h] [bp-13Ch]</span><br><span class="line">  int *v90; // [sp+5Ch] [bp-134h]</span><br><span class="line">  int v91; // [sp+60h] [bp-130h]</span><br><span class="line">  char v92; // [sp+64h] [bp-12Ch]</span><br><span class="line">  int v93; // [sp+78h] [bp-118h]</span><br><span class="line">  char v94; // [sp+7Ch] [bp-114h]</span><br><span class="line">  int v95; // [sp+90h] [bp-100h]</span><br><span class="line">  char v96; // [sp+94h] [bp-FCh]</span><br><span class="line">  int v97; // [sp+A8h] [bp-E8h]</span><br><span class="line">  int v98; // [sp+B4h] [bp-DCh]</span><br><span class="line">  int v99; // [sp+174h] [bp-1Ch]</span><br><span class="line"></span><br><span class="line">  v3 = a1;</span><br><span class="line">  v72 = a3;</span><br><span class="line">  v99 = *off_604A3DA4;</span><br><span class="line">  v90 = off_604A3DA4;</span><br><span class="line">  v75 = (unk_6048BCFC)(a1, a2, &quot;android/content/Context&quot;, &quot;getClassLoader&quot;, &quot;()Ljava/lang/ClassLoader;&quot;);</span><br><span class="line">  if ( !v75 )</span><br><span class="line">    goto LABEL_102;</span><br><span class="line">  v4 = (unk_6048B984)(v3, &quot;com/tencent/StubShell/TxAppEntry&quot;);</span><br><span class="line">  v5 = v4;</span><br><span class="line">  v6 = (unk_6048D96C)(v3, v4, &quot;mSrcPath&quot;, &quot;Ljava/lang/String;&quot;);</span><br><span class="line">  v83 = (unk_6048D97A)(v3, v5, v6);</span><br><span class="line">  v79 = (unk_6048BEC4)(v3, v83);</span><br><span class="line">  v7 = (unk_6048D96C)(v3, v5, &quot;mPKName&quot;, &quot;Ljava/lang/String;&quot;);</span><br><span class="line">  v8 = (unk_6048D97A)(v3, v5, v7);</span><br><span class="line">  v89 = (unk_6048BEC4)(v3, v8);</span><br><span class="line">  v9 = unk_604A3DA8;</span><br><span class="line">  if ( dword_604A46E8 &lt;= 10 )</span><br><span class="line">  &#123;</span><br><span class="line">    v11 = (unk_6048B984)(v3, *(unk_604A3DA8 + 456));</span><br><span class="line">    v12 = (unk_6048D916)(v3, v75, v11);</span><br><span class="line">    v13 = v9 + 51;</span><br><span class="line">    if ( v12 )</span><br><span class="line">    &#123;</span><br><span class="line">      v78 = (unk_6048BF50)(v3, v75, v9[114], *v13, v9[52]);</span><br><span class="line">      v82 = (unk_6048BF50)(v3, v75, v9[114], &quot;mPaths&quot;, &quot;[Ljava/lang/String;&quot;);</span><br><span class="line">      v84 = (unk_6048BF50)(v3, v75, v9[114], &quot;mFiles&quot;, &quot;[Ljava/io/File;&quot;);</span><br><span class="line">      v71 = (unk_6048BF50)(v3, v75, v9[114], &quot;mZips&quot;, &quot;[Ljava/util/zip/ZipFile;&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">      v78 = (unk_6048BF50)(v3, v75, v9[50], *v13, v9[52]);</span><br><span class="line">      v84 = (unk_6048BF50)(v3, v75, v9[50], &quot;mFiles&quot;, &quot;[Ljava/io/File;&quot;);</span><br><span class="line">      v82 = 0;</span><br><span class="line">      v71 = (unk_6048BF50)(v3, v75, v9[50], &quot;mZips&quot;, &quot;[Ljava/util/zip/ZipFile;&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    if ( v78 )</span><br><span class="line">    &#123;</span><br><span class="line">      v14 = 0;</span><br><span class="line">      v76 = (unk_6048B9CA)(v3, v78);</span><br><span class="line">      v65 = 0;</span><br><span class="line">      while ( 1 )</span><br><span class="line">      &#123;</span><br><span class="line">        if ( v14 &gt;= v76 )</span><br><span class="line">        &#123;</span><br><span class="line">          v81 = 0;</span><br><span class="line">          v86 = 0;</span><br><span class="line">          goto LABEL_28;</span><br><span class="line">        &#125;</span><br><span class="line">        v15 = (unk_6048B9D8)(v3, v78, v14);</span><br><span class="line">        if ( v15 &amp;&amp; (v65 = (unk_6048C880)(v3, v15, v9[59], v9[106])) != 0 )</span><br><span class="line">        &#123;</span><br><span class="line">          if ( *v65 &amp;&amp; !(unk_6049C0BC)() )</span><br><span class="line">          &#123;</span><br><span class="line">            v81 = 0;</span><br><span class="line">            v86 = 0;</span><br><span class="line">            goto LABEL_28;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">          android_P();</span><br><span class="line">        &#125;</span><br><span class="line">        ++v14;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    goto LABEL_45;</span><br><span class="line">  &#125;</span><br><span class="line">  v86 = (unk_6048BF50)(v3, v75, *(unk_604A3DA8 + 240), *(unk_604A3DA8 + 244), *(unk_604A3DA8 + 248));</span><br><span class="line">  v81 = (unk_6048BF50)(v3, v86, v9[53], v9[54], v9[55]);</span><br><span class="line">  v76 = (unk_6048B9CA)(v3, v81);</span><br><span class="line">  v70 = 0;</span><br><span class="line">  v65 = 0;</span><br><span class="line">  while ( v70 &lt; v76 )</span><br><span class="line">  &#123;</span><br><span class="line">    v10 = (unk_6048B9D8)(v3, v81, v70);</span><br><span class="line">    v67 = (unk_6048BF50)(v3, v10, v9[56], v9[57], v9[58]);</span><br><span class="line">    if ( v67</span><br><span class="line">      &amp;&amp; ((v65 = (unk_6048C880)(v3, v67, v9[59], v9[106])) != 0 || (v65 = (unk_6048CA60)(v3, v67, v9[59], v9[106])) != 0) )</span><br><span class="line">    &#123;</span><br><span class="line">      if ( *v65 &amp;&amp; !(unk_6049C0BC)() )</span><br><span class="line">      &#123;</span><br><span class="line">        v71 = 0;</span><br><span class="line">        v84 = 0;</span><br><span class="line">        v82 = 0;</span><br><span class="line">        v78 = 0;</span><br><span class="line">        goto LABEL_28;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">      android_P();</span><br><span class="line">    &#125;</span><br><span class="line">    ++v70;</span><br><span class="line">  &#125;</span><br><span class="line">  v71 = 0;</span><br><span class="line">  v84 = 0;</span><br><span class="line">  v82 = 0;</span><br><span class="line">  v78 = 0;</span><br><span class="line">LABEL_28:</span><br><span class="line">  if ( v72 )</span><br><span class="line">    v16 = v72 - 40;</span><br><span class="line">  else</span><br><span class="line">    v16 = (unk_6048F564)(v89, &quot;classes.dex&quot;, 0);</span><br><span class="line">  v73 = 0;</span><br><span class="line">  if ( !v16 )</span><br><span class="line">  &#123;</span><br><span class="line">    (unk_6048F6A8)(&amp;v96, v79, &amp;v91);</span><br><span class="line">    android_P();</span><br><span class="line">    (unk_6048FC14)(&amp;v96);</span><br><span class="line">    android_P();</span><br><span class="line">    v16 = (unk_6048F564)(v97, &quot;classes.dex&quot;, 0);</span><br><span class="line">    (unk_6048F664)(&amp;v96);</span><br><span class="line">    if ( v16 )</span><br><span class="line">    &#123;</span><br><span class="line">      v73 = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">      v16 = (unk_6048E964)(v65) - 40;</span><br><span class="line">      v73 = 1;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  v17 = (unk_6048DA1A)(v16 + 40);</span><br><span class="line">  android_P();</span><br><span class="line">  (unk_6049C12C)(&amp;v96, 0, 224);</span><br><span class="line">  v88 = v16 + v17 + 40;</span><br><span class="line">  (unk_6049C1AC)(&amp;v96, v16 + v17 + 40, 224);</span><br><span class="line">  (unk_604952DC)(&amp;unk_604A0E41, &amp;v96, 224, 32);</span><br><span class="line">  v85 = v16 + v17 + 40;</span><br><span class="line">  v68 = v98;</span><br><span class="line">  v18 = android_P();</span><br><span class="line">  if ( v73 )</span><br><span class="line">  &#123;</span><br><span class="line">    v19 = v68;</span><br><span class="line">    if ( v68 &amp; 0xFFF )</span><br><span class="line">      v19 = (v68 / 4096 + 1) &lt;&lt; 12;</span><br><span class="line">    v18 = (unk_6049C10C)(v16, v19, 3);</span><br><span class="line">    if ( v18 )</span><br><span class="line">    &#123;</span><br><span class="line">      v20 = v68;</span><br><span class="line">      if ( v68 &amp; 0xFFF )</span><br><span class="line">        v20 = (v68 / 4096 + 1) &lt;&lt; 12;</span><br><span class="line">      v18 = (unk_6049C10C)(v16, v20, 5);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  v21 = (unk_6048DE24)(v18);</span><br><span class="line">  v22 = *(unk_6049C30C)();</span><br><span class="line">  android_P();</span><br><span class="line">  if ( v21 == -1 )</span><br><span class="line">  &#123;</span><br><span class="line">    v23 = android_P();</span><br><span class="line">    if ( (unk_6048DE74)(v23) == -1 )</span><br><span class="line">    &#123;</span><br><span class="line">      android_P();</span><br><span class="line">      v24 = (unk_6049C25C)(&quot;/dev/zero&quot;, 2);</span><br><span class="line">      v25 = (unk_6049C37C)(0, v68);</span><br><span class="line">      (unk_6049C2BC)(v24);</span><br><span class="line">      if ( !v25 )</span><br><span class="line">      &#123;</span><br><span class="line">LABEL_45:</span><br><span class="line">        android_P();</span><br><span class="line">        goto LABEL_102;</span><br><span class="line">      &#125;</span><br><span class="line">      (unk_6049C1BC)(v25, v88, v68);</span><br><span class="line">      v85 = v25;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  (unk_604952DC)(&amp;unk_604A0E41, v85, 224, 32);</span><br><span class="line">  (unk_6048F6A8)(&amp;v92, &quot;/data/data/&quot;, &amp;v91);</span><br><span class="line">  (unk_6048F7DA)(&amp;v92, v89);</span><br><span class="line">  (unk_6048F994)(&amp;v94, &amp;v92, &quot;/mix.so&quot;);</span><br><span class="line">  (unk_6048F7DA)(&amp;v92, &quot;/mix.dex&quot;);</span><br><span class="line">  v26 = (unk_6048BDB4)(v3, v93);</span><br><span class="line">  v27 = (unk_6048BDB4)(v3, v95);</span><br><span class="line">  if ( (unk_6048E4A8)(v3, v83, v93)</span><br><span class="line">    &amp;&amp; (v74 = (unk_6048BAD4)(</span><br><span class="line">                v3,</span><br><span class="line">                &quot;dalvik/system/DexFile&quot;,</span><br><span class="line">                &quot;loadDex&quot;,</span><br><span class="line">                &quot;(Ljava/lang/String;Ljava/lang/String;I)Ldalvik/system/DexFile;&quot;,</span><br><span class="line">                v26,</span><br><span class="line">                v27,</span><br><span class="line">                0)) != 0 )</span><br><span class="line">  &#123;</span><br><span class="line">    v83 = v26;</span><br><span class="line">    v80 = 0;</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    android_P();</span><br><span class="line">    (unk_6048F8F8)(&amp;v92, v79);</span><br><span class="line">    v74 = (unk_6048BAD4)(</span><br><span class="line">            v3,</span><br><span class="line">            &quot;dalvik/system/DexFile&quot;,</span><br><span class="line">            &quot;loadDex&quot;,</span><br><span class="line">            &quot;(Ljava/lang/String;Ljava/lang/String;I)Ldalvik/system/DexFile;&quot;,</span><br><span class="line">            v83,</span><br><span class="line">            0,</span><br><span class="line">            0);</span><br><span class="line">    android_P();</span><br><span class="line">    v80 = 1;</span><br><span class="line">  &#125;</span><br><span class="line">  v28 = (unk_6048C880)(v3, v74, v9[59], v9[106]);</span><br><span class="line">  if ( !v28 )</span><br><span class="line">  &#123;</span><br><span class="line">    v28 = (unk_6048CA60)(v3, v74, v9[59], v9[106]);</span><br><span class="line">    if ( !v28 )</span><br><span class="line">      android_P();</span><br><span class="line">  &#125;</span><br><span class="line">  if ( v80 )</span><br><span class="line">  &#123;</span><br><span class="line">    v29 = dword_604A46E8;</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    v29 = dword_604A46E8;</span><br><span class="line">    if ( dword_604A46E8 &gt; 10 )</span><br><span class="line">    &#123;</span><br><span class="line">      v30 = *(*(v28 + 8) + 4);</span><br><span class="line">      goto LABEL_61;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  v31 = *(v28 + 12);</span><br><span class="line">  if ( v29 == 8 )</span><br><span class="line">    v30 = *(v31 + 36);</span><br><span class="line">  else</span><br><span class="line">    v30 = *(v31 + 40);</span><br><span class="line">LABEL_61:</span><br><span class="line">  v91 = 0;</span><br><span class="line">  (unk_6048E850)(v3, v85, v68, &amp;v91, v30);</span><br><span class="line">  v32 = v91;</span><br><span class="line">  v33 = *(v91 + 4);</span><br><span class="line">  if ( v80 )</span><br><span class="line">  &#123;</span><br><span class="line">    *(v28 + 8) = v91;</span><br><span class="line">    *(v28 + 4) = 1;</span><br><span class="line">    if ( dword_604A46E8 == 10 )</span><br><span class="line">      v65[4] = v85;</span><br><span class="line">    goto LABEL_71;</span><br><span class="line">  &#125;</span><br><span class="line">  v34 = dword_604A46E8;</span><br><span class="line">  if ( dword_604A46E8 &lt;= 10 )</span><br><span class="line">  &#123;</span><br><span class="line">    *(v28 + 4) = 1;</span><br><span class="line">    *(v28 + 8) = v32;</span><br><span class="line">    if ( v34 == 10 )</span><br><span class="line">      v65[4] = v85;</span><br><span class="line">LABEL_71:</span><br><span class="line">    *(v28 + 12) = 0;</span><br><span class="line">    goto LABEL_72;</span><br><span class="line">  &#125;</span><br><span class="line">  if ( dword_604A46E8 &lt;= 18 &amp;&amp; (unk_6048DEC8)() )</span><br><span class="line">    (unk_60493180)(*(*(v28 + 8) + 4), v33, dword_604A46E8);</span><br><span class="line">  else</span><br><span class="line">    (unk_60493194)(*(*(v28 + 8) + 4), v33, dword_604A46E8);</span><br><span class="line">LABEL_72:</span><br><span class="line">  if ( dword_604A46E8 &lt;= 10 )</span><br><span class="line">  &#123;</span><br><span class="line">    v43 = (unk_6048B984)(v3, &quot;dalvik/system/DexFile&quot;);</span><br><span class="line">    v66 = (unk_6048D988)(v3, v76 + 1, v43, 0);</span><br><span class="line">    (unk_6048B9E6)(v3, v66, 0, v74);</span><br><span class="line">    for ( i = 0; i &lt; v76; (unk_6048B9E6)(v3, v66, i, v45) )</span><br><span class="line">      v45 = (unk_6048B9D8)(v3, v78, i++);</span><br><span class="line">    if ( v82 )</span><br><span class="line">    &#123;</span><br><span class="line">      v46 = (unk_6048B9CA)(v3, v82);</span><br><span class="line">      v47 = (unk_6048B984)(v3, &quot;java/lang/String&quot;);</span><br><span class="line">      v87 = (unk_6048D988)(v3, v46 + 1, v47, 0);</span><br><span class="line">      (unk_6048B9E6)(v3, v87, 0, v83);</span><br><span class="line">      for ( j = 0; j &lt; v46; (unk_6048B9E6)(v3, v87, j, v49) )</span><br><span class="line">        v49 = (unk_6048B9D8)(v3, v82, j++);</span><br><span class="line">    &#125;</span><br><span class="line">    v50 = (unk_6048B9CA)(v3, v84);</span><br><span class="line">    v51 = (unk_6048B984)(v3, &quot;java/io/File&quot;);</span><br><span class="line">    v69 = (unk_6048D988)(v3, v50 + 1, v51, 0);</span><br><span class="line">    v52 = (unk_6048B9B2)(v3, v51, &quot;&lt;init&gt;&quot;, &quot;(Ljava/lang/String;)V&quot;);</span><br><span class="line">    v77 = (unk_6048B998)(v3, v51, v52, v83);</span><br><span class="line">    (unk_6048B9E6)(v3, v69, 0, v77);</span><br><span class="line">    for ( k = 0; k &lt; v50; (unk_6048B9E6)(v3, v69, k, v54) )</span><br><span class="line">      v54 = (unk_6048B9D8)(v3, v84, k++);</span><br><span class="line">    v55 = (unk_6048B9CA)(v3, v71);</span><br><span class="line">    v56 = (unk_6048B984)(v3, &quot;java/util/zip/ZipFile&quot;);</span><br><span class="line">    v57 = (unk_6048D988)(v3, v55 + 1, v56, 0);</span><br><span class="line">    v58 = (unk_6048B9B2)(v3, v56, &quot;&lt;init&gt;&quot;, &quot;(Ljava/io/File;)V&quot;);</span><br><span class="line">    v59 = (unk_6048B998)(v3, v56, v58, v77);</span><br><span class="line">    (unk_6048B9E6)(v3, v57, 0, v59);</span><br><span class="line">    for ( l = 0; l &lt; v55; (unk_6048B9E6)(v3, v57, l, v61) )</span><br><span class="line">      v61 = (unk_6048B9D8)(v3, v71, l++);</span><br><span class="line">    v62 = unk_604A3DA8;</span><br><span class="line">    v63 = (unk_6048B984)(v3, *(unk_604A3DA8 + 456));</span><br><span class="line">    if ( (unk_6048D916)(v3, v75, v63) )</span><br><span class="line">    &#123;</span><br><span class="line">      (unk_6048C00C)(v3, v75, v62[114], v62[51], v62[52], v66);</span><br><span class="line">      (unk_6048C00C)(v3, v75, v62[114], &quot;mPaths&quot;, &quot;[Ljava/lang/String;&quot;, v87);</span><br><span class="line">      (unk_6048C00C)(v3, v75, v62[114], &quot;mFiles&quot;, &quot;[Ljava/io/File;&quot;, v69);</span><br><span class="line">      (unk_6048C00C)(v3, v75, v62[114], &quot;mZips&quot;, &quot;[Ljava/util/zip/ZipFile;&quot;, v57);</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">      (unk_6048C00C)(v3, v75, v62[50], v62[51], v62[52], v66);</span><br><span class="line">      (unk_6048C00C)(v3, v75, v62[50], &quot;mFiles&quot;, &quot;[Ljava/io/File;&quot;, v69);</span><br><span class="line">      (unk_6048C00C)(v3, v75, v62[50], &quot;mZips&quot;, &quot;[Ljava/util/zip/ZipFile;&quot;, v57);</span><br><span class="line">    &#125;</span><br><span class="line">    goto LABEL_85;</span><br><span class="line">  &#125;</span><br><span class="line">  v35 = (unk_6048B984)(v3, &quot;dalvik/system/DexPathList$Element&quot;);</span><br><span class="line">  v36 = (unk_6048B9B2)(v3, v35, &quot;&lt;init&gt;&quot;, &quot;(Ljava/io/File;Ljava/util/zip/ZipFile;Ldalvik/system/DexFile;)V&quot;);</span><br><span class="line">  if ( v36</span><br><span class="line">    || ((unk_6048D90C)(v3),</span><br><span class="line">        (v36 = (unk_6048B9B2)(v3, v35, &quot;&lt;init&gt;&quot;, &quot;(Ljava/io/File;Ljava/io/File;Ldalvik/system/DexFile;)V&quot;)) != 0) )</span><br><span class="line">  &#123;</span><br><span class="line">    v37 = (unk_6048B998)(v3, v35, v36);</span><br><span class="line">LABEL_79:</span><br><span class="line">    v38 = v37;</span><br><span class="line">    goto LABEL_81;</span><br><span class="line">  &#125;</span><br><span class="line">  (unk_6048D90C)(v3);</span><br><span class="line">  if ( (unk_6048B9B2)(v3, v35, &quot;&lt;init&gt;&quot;, &quot;(Ljava/io/File;ZLjava/io/File;Ldalvik/system/DexFile;)V&quot;) )</span><br><span class="line">  &#123;</span><br><span class="line">    v37 = (unk_6048B998)(v3, v35);</span><br><span class="line">    goto LABEL_79;</span><br><span class="line">  &#125;</span><br><span class="line">  v38 = 0;</span><br><span class="line">LABEL_81:</span><br><span class="line">  v39 = (unk_6048B984)(v3, &quot;dalvik/system/DexPathList$Element&quot;);</span><br><span class="line">  v40 = (unk_6048D988)(v3, v76 + 1, v39, 0);</span><br><span class="line">  (unk_6048B9E6)(v3, v40, 0, v38);</span><br><span class="line">  for ( m = 0; m &lt; v76; (unk_6048B9E6)(v3, v40, m, v42) )</span><br><span class="line">    v42 = (unk_6048B9D8)(v3, v81, m++);</span><br><span class="line">  (unk_6048C00C)(v3, v86, v9[53], v9[54], v9[55], v40);</span><br><span class="line">LABEL_85:</span><br><span class="line">  dword_604A4714 = (*(*v3 + 84))(v3, v74);</span><br><span class="line">  android_P();</span><br><span class="line">  (unk_6048F664)(&amp;v94);</span><br><span class="line">  (unk_6048F664)(&amp;v92);</span><br><span class="line">LABEL_102:</span><br><span class="line">  result = v90;</span><br><span class="line">  if ( v99 != *v90 )</span><br><span class="line">    result = sub_6049C17C(v90);</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么脱壳的话，此处就已经可以开始手动脱了。</p>
+<p>那么整个逆向分析部分到这就结束了，后面的函数具体分析以及如何手动脱壳，咱们下次有机会再分享</p>
+<h2 id="0x03-结语"><a href="#0x03-结语" class="headerlink" title="0x03 结语"></a>0x03 结语</h2><p>想说的是，这篇文章在操作上花了很重的笔墨，怎么说呢，要想详细介绍原理细节不是一句两句能说清楚的，比如为什么在这下断，还有dex加载，so加载等等细节，以及一些脱壳点，咱们下次有机会再分享。</p>
+<h2 id="0x04-参考文章"><a href="#0x04-参考文章" class="headerlink" title="0x04 参考文章"></a>0x04 参考文章</h2><p><a href="https://bbs.pediy.com/thread-218782.htm" target="_blank" rel="noopener">https://bbs.pediy.com/thread-218782.htm</a></p>
+<p><a href="https://bbs.pediy.com/thread-217556.htm" target="_blank" rel="noopener">https://bbs.pediy.com/thread-217556.htm</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/15/一个so中的签名验证绕过/" rel="next" title="一个so中的签名验证绕绕过">
+                <i class="fa fa-chevron-left"></i> 一个so中的签名验证绕绕过
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Mask" />
+            
+              <p class="site-author-name" itemprop="name">Mask</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-前言"><span class="nav-number">1.</span> <span class="nav-text">0x00 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-Java层分析"><span class="nav-number">2.</span> <span class="nav-text">0x01 Java层分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-so文件动态分析"><span class="nav-number">3.</span> <span class="nav-text">0x02 so文件动态分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-结语"><span class="nav-number">4.</span> <span class="nav-text">0x03 结语</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-参考文章"><span class="nav-number">5.</span> <span class="nav-text">0x04 参考文章</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mask</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
